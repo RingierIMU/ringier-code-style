@@ -29,7 +29,7 @@ jobs:
         run: composer install --prefer-dist --no-progress
 
       - name: Create the PHAR file.
-        run: ./ringier-code-style app:build --build-version=${{ steps.tag.outputs.tag }}
+        run: ./ringier-code-style app:build ringier-code-style.phar --build-version=${{ steps.tag.outputs.tag }}
 
       - name: Upload the PHAR to release
         uses: JasonEtco/upload-to-release@master
