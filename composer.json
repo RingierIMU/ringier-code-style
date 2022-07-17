@@ -61,10 +61,13 @@
     },
     "scripts": {
         "post-install-cmd": [
-            "phive install --copy --trust-gpg-keys "
+            "@phive-install"
         ],
         "post-update-cmd": [
-            "phive install --copy --trust-gpg-keys "
+            "@phive-install"
+        ],
+        "phive-install": [
+            "phive install --copy --trust-gpg-keys 0xC00543248C87FB13,0x31C7E470E2138192"
         ]
     }
 }
