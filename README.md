@@ -4,7 +4,7 @@ RingerSA PHP Code Style
 ## Installation
 
 ```bash
-composer require ringierimu/ringier-code-style
+composer require ringierimu/ringier-code-style --dev
 ```
 
 ## Usage
