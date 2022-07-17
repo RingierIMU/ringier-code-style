@@ -2,6 +2,7 @@
 
 namespace App\Commands;
 
+use Illuminate\Support\Str;
 use LaravelZero\Framework\Commands\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Process\Process;
@@ -34,6 +35,11 @@ class DefaultCommand extends Command
         $this->runPint();
         $this->runPHPCS();
         $this->runComposerNormalize();
+        foreach ($this->argument('path') as $path) {
+            if (Str::is('*/composer.json', $path)) {
+                $this->runComposerNormalize($path);
+            }
+        }
     }
 
     protected function runPint()
@@ -99,7 +105,7 @@ class DefaultCommand extends Command
         @unlink($bin);
     }
 
-    protected function runComposerNormalize()
+    protected function runComposerNormalize(string $path = null)
     {
         $bin = tempnam(sys_get_temp_dir(), "composer-normalize");
         file_put_contents($bin, file_get_contents(base_path() . '/tools/composer-normalize'));
@@ -107,9 +113,12 @@ class DefaultCommand extends Command
 
         $this->info('Running composer normalize');
         $process = new Process(
-            [
-                $bin,
-            ],
+            array_merge(
+                [
+                    $bin,
+                ],
+                $path ? [$path] : []
+            ),
         );
         $process->run();
 
