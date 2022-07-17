@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'default' => \App\Commands\DefaultCommand::class,
+    'default' => NunoMaduro\LaravelConsoleSummary\SummaryCommand::class,
 
     /*
     |--------------------------------------------------------------------------
@@ -55,6 +55,7 @@ return [
     */
 
     'hidden' => [
+        NunoMaduro\LaravelConsoleSummary\SummaryCommand::class,
         LaravelZero\Framework\Commands\BuildCommand::class,
     ],
 
@@ -83,7 +84,6 @@ return [
 
         // NunoMaduro...
         NunoMaduro\Collision\Adapters\Laravel\Commands\TestCommand::class,
-        //        NunoMaduro\LaravelConsoleSummary\SummaryCommand::class,
 
         // Symfony...
         Symfony\Component\Console\Command\DumpCompletionCommand::class,

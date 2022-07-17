@@ -55,6 +55,9 @@
         "post-update-cmd": [
             "@phive-install"
         ],
+        "fix-code-style": [
+            "./ringier-code-style fix app config database bootstrap public routes resources tests"
+        ],
         "phive-install": [
             "phive install --copy --trust-gpg-keys 0xC00543248C87FB13,0x31C7E470E2138192"
         ]

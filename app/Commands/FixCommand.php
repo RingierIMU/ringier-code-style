@@ -7,9 +7,9 @@ use LaravelZero\Framework\Commands\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Process\Process;
 
-class DefaultCommand extends Command
+class FixCommand extends Command
 {
-    protected $name = 'default';
+    protected $name = 'fix';
 
     protected $description = 'Fix code styling for the given path.';
 
@@ -20,7 +20,7 @@ class DefaultCommand extends Command
         $this
             ->setDefinition(
                 [
-                    new InputArgument('path', InputArgument::IS_ARRAY, 'The path to fix', [(string) getcwd()]),
+                    new InputArgument('path', InputArgument::IS_ARRAY, 'The path to fix'),
                 ]
             );
     }
@@ -32,13 +32,17 @@ class DefaultCommand extends Command
      */
     public function handle()
     {
-        $this->runPint();
-        $this->runPHPCS();
         $this->runComposerNormalize();
-        foreach ($this->argument('path') as $path) {
-            if (Str::is('*/composer.json', $path)) {
-                $this->runComposerNormalize($path);
+
+        if ($this->argument('path')) {
+            foreach ($this->argument('path') as $path) {
+                if (Str::is('*/composer.json', $path)) {
+                    $this->runComposerNormalize($path);
+                }
             }
+
+            $this->runPint();
+            $this->runPHPCS();
         }
     }
 
