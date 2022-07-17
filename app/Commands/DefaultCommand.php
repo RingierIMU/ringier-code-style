@@ -49,13 +49,16 @@ class DefaultCommand extends Command
                 '--config=' . $configFile,
                 ...$this->argument('path'),
             ],
-            //            base_path(),
         );
-        $process->run(); // executes after the command finishes
+        $process->run();
 
-        dump($process->getErrorOutput());
+        if (!$process->isSuccessful()) {
+            $this->error($process->getErrorOutput());
+        }
 
         echo $process->getOutput();
+
+        @unlink($configFile);
     }
 
     protected function runPHPCS()
@@ -73,15 +76,17 @@ class DefaultCommand extends Command
                     '--standard=' . $configFile,
                     $path,
                 ],
-                //                base_path(),
             );
-            $process->run(); // executes after the command finishes
+            $process->run();
 
-            dump($process->getErrorOutput());
-            unlink($configFile);
+            if (!$process->isSuccessful()) {
+                $this->error($process->getErrorOutput());
+            }
 
             echo $process->getOutput();
         }
+
+        @unlink($configFile);
     }
 
     protected function runComposerNormalize()
@@ -91,11 +96,12 @@ class DefaultCommand extends Command
             [
                 'tools/composer-normalize',
             ],
-            //            base_path(),
         );
-        $process->run(); // executes after the command finishes
+        $process->run();
 
-        dump($process->getErrorOutput());
+        if (!$process->isSuccessful()) {
+            $this->error($process->getErrorOutput());
+        }
 
         echo $process->getOutput();
     }
