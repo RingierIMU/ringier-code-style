@@ -42,10 +42,15 @@ class DefaultCommand extends Command
         rename($configFile, $configFile .= '.json');
         file_put_contents($configFile, file_get_contents(base_path() . '/pint.json'));
 
+        $bin = tempnam(sys_get_temp_dir(), "pint");
+        file_put_contents($bin, file_get_contents(base_path() . '/vendor/laravel/pint/builds/pint'));
+        chmod($bin, 0755);
+
         $this->info('Running pint on ' . implode(', ', $this->argument('path')));
+
         $process = new Process(
             [
-                'vendor/bin/pint',
+                $bin,
                 '--config=' . $configFile,
                 ...$this->argument('path'),
             ],
@@ -67,11 +72,15 @@ class DefaultCommand extends Command
         rename($configFile, $configFile .= '.xml');
         file_put_contents($configFile, file_get_contents(base_path() . '/.phpcs.xml'));
 
+        $bin = tempnam(sys_get_temp_dir(), "phpcbf");
+        file_put_contents($bin, file_get_contents(base_path() . '/tools/phpcbf'));
+        chmod($bin, 0755);
+
         foreach ($this->argument('path') as $path) {
             $this->info('Running phpcs on ' . $path);
             $process = new Process(
                 [
-                    'tools/phpcbf',
+                    $bin,
                     '--extensions=php',
                     '--standard=' . $configFile,
                     $path,
@@ -87,14 +96,19 @@ class DefaultCommand extends Command
         }
 
         @unlink($configFile);
+        @unlink($bin);
     }
 
     protected function runComposerNormalize()
     {
+        $bin = tempnam(sys_get_temp_dir(), "composer-normalize");
+        file_put_contents($bin, file_get_contents(base_path() . '/tools/composer-normalize'));
+        chmod($bin, 0755);
+
         $this->info('Running composer normalize');
         $process = new Process(
             [
-                'tools/composer-normalize',
+                $bin,
             ],
         );
         $process->run();
