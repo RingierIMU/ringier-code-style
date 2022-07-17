@@ -53,6 +53,9 @@
             "pestphp/pest-plugin": true
         },
         "optimize-autoloader": true,
+        "platform": {
+            "php": "8.0.21"
+        },
         "preferred-install": "dist",
         "sort-packages": true
     },
