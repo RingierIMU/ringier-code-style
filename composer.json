@@ -1,32 +1,21 @@
 {
-    "name": "laravel-zero/laravel-zero",
-    "description": "The Laravel Zero Framework.",
+    "name": "ringierimu/ringier-code-style",
+    "description": "Ringier SA PHP Code Style",
     "license": "MIT",
     "type": "project",
-    "keywords": [
-        "framework",
-        "laravel",
-        "laravel zero",
-        "console",
-        "cli"
-    ],
+    "keywords": [],
     "authors": [
         {
-            "name": "Nuno Maduro",
-            "email": "enunomaduro@gmail.com"
+            "name": "Matthew Nessworthy",
+            "email": "matthew.nessworthy@gmail.com"
         }
     ],
-    "homepage": "https://laravel-zero.com",
-    "support": {
-        "issues": "https://github.com/laravel-zero/laravel-zero/issues",
-        "source": "https://github.com/laravel-zero/laravel-zero"
-    },
     "require": {
-        "php": "^8.0",
-        "laravel/pint": "^1.0"
+        "php": "^8.0"
     },
     "require-dev": {
         "laravel-zero/framework": "^9.0",
+        "laravel/pint": "^1.0",
         "mockery/mockery": "^1.4.4",
         "nunomaduro/termwind": "^1.3",
         "pestphp/pest": "^1.21.1"
