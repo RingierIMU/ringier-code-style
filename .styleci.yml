@@ -13,7 +13,6 @@ php:
     - linebreak_after_opening_tag
     - method_separation
     - native_function_casing
-    - no_blank_lines_after_phpdoc
     - no_blank_lines_after_return
     - no_blank_lines_after_throw
     - no_blank_lines_between_imports
