@@ -10,6 +10,7 @@
 /.gitattributes export-ignore
 /.github export-ignore
 /.gitignore export-ignore
+/.phive export-ignore
 /.phpcs.xml export-ignore
 /.styleci.yml export-ignore
 /README.md export-ignore

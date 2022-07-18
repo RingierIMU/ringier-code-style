@@ -9,6 +9,7 @@
     ],
     "files": [
         ".phpcs.xml",
+        ".styleci.yml",
         "composer.json",
         "pint.json"
     ],
