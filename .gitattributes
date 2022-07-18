@@ -1,6 +1,26 @@
 * text=auto
+
+*.blade.php diff=html
+*.css diff=css
+*.html diff=html
+*.md diff=markdown
+*.php diff=php
+
+/.editorconfig export-ignore
+/.gitattributes export-ignore
 /.github export-ignore
-.scrutinizer.yml export-ignore
-BACKERS.md export-ignore
-CONTRIBUTING.md export-ignore
-CHANGELOG.md export-ignore
+/.gitignore export-ignore
+/.phpcs.xml export-ignore
+/.styleci.yml export-ignore
+/README.md export-ignore
+/app export-ignore
+/bootstrap export-ignore
+/box.json export-ignore
+/composer.lock export-ignore
+/config export-ignore
+/phpunit.xml.dist export-ignore
+/phpunit.xml.dist export-ignore
+/pint.json export-ignore
+/ringier-code-style export-ignore
+/storage export-ignore
+/tests export-ignore
