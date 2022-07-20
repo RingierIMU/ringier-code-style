@@ -5,6 +5,7 @@ namespace App\Commands;
 use Illuminate\Support\Str;
 use LaravelZero\Framework\Commands\Command;
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Process\Process;
 
 class FixCommand extends Command
@@ -21,6 +22,43 @@ class FixCommand extends Command
             ->setDefinition(
                 [
                     new InputArgument('path', InputArgument::IS_ARRAY, 'The path to fix'),
+                    new InputOption(
+                        'path-mode',
+                        null,
+                        InputOption::VALUE_OPTIONAL,
+                        'IGNORED - included for PHPStorm + PHP CS Fixer integration'
+                    ),
+                    new InputOption(
+                        'dry-run',
+                        null,
+                        InputOption::VALUE_NONE,
+                        'IGNORED - included for PHPStorm + PHP CS Fixer integration'
+                    ),
+                    new InputOption(
+                        'allow-risky',
+                        null,
+                        InputOption::VALUE_OPTIONAL,
+                        'IGNORED - included for PHPStorm + PHP CS Fixer integration',
+                        'no'
+                    ),
+                    new InputOption(
+                        'diff',
+                        null,
+                        InputOption::VALUE_NONE,
+                        'IGNORED - included for PHPStorm + PHP CS Fixer integration'
+                    ),
+                    new InputOption(
+                        'format',
+                        null,
+                        InputOption::VALUE_OPTIONAL,
+                        'IGNORED - included for PHPStorm + PHP CS Fixer integration'
+                    ),
+                    new InputOption(
+                        'rules',
+                        null,
+                        InputOption::VALUE_OPTIONAL,
+                        'IGNORED - included for PHPStorm + PHP CS Fixer integration'
+                    ),
                 ]
             );
     }
@@ -32,17 +70,17 @@ class FixCommand extends Command
      */
     public function handle()
     {
-        $this->runComposerNormalize();
-
         if ($this->argument('path')) {
             foreach ($this->argument('path') as $path) {
-                if (Str::is('*/composer.json', $path)) {
+                if (Str::is(['*/composer.json', 'composer.json'], $path)) {
                     $this->runComposerNormalize($path);
                 }
             }
 
             $this->runPint();
             $this->runPHPCS();
+        } else {
+            $this->runComposerNormalize();
         }
     }
 
@@ -62,6 +100,7 @@ class FixCommand extends Command
             [
                 $bin,
                 '--config=' . $configFile,
+                '-q',
                 ...$this->argument('path'),
             ],
         );
@@ -93,6 +132,9 @@ class FixCommand extends Command
                     $bin,
                     '--extensions=php',
                     '--standard=' . $configFile,
+                    '-m',
+                    '-q',
+                    '-n',
                     $path,
                 ],
             );

@@ -2,10 +2,7 @@
 
 namespace App\Commands;
 
-use Illuminate\Support\Str;
 use LaravelZero\Framework\Commands\Command;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Process\Process;
 
 class StyleCIInitCommand extends Command
 {
