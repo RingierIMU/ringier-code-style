@@ -29,6 +29,12 @@ class FixCommand extends Command
                         'IGNORED - included for PHPStorm + PHP CS Fixer integration'
                     ),
                     new InputOption(
+                        'config',
+                        null,
+                        InputOption::VALUE_OPTIONAL,
+                        'IGNORED - included for PHPStorm + PHP CS Fixer integration'
+                    ),
+                    new InputOption(
                         'dry-run',
                         null,
                         InputOption::VALUE_NONE,
@@ -39,7 +45,6 @@ class FixCommand extends Command
                         null,
                         InputOption::VALUE_OPTIONAL,
                         'IGNORED - included for PHPStorm + PHP CS Fixer integration',
-                        'no'
                     ),
                     new InputOption(
                         'diff',
@@ -55,6 +60,30 @@ class FixCommand extends Command
                     ),
                     new InputOption(
                         'rules',
+                        null,
+                        InputOption::VALUE_OPTIONAL,
+                        'IGNORED - included for PHPStorm + PHP CS Fixer integration'
+                    ),
+                    new InputOption(
+                        'stop-on-violation',
+                        null,
+                        InputOption::VALUE_NONE,
+                        'IGNORED - included for PHPStorm + PHP CS Fixer integration'
+                    ),
+                    new InputOption(
+                        'show-progress',
+                        null,
+                        InputOption::VALUE_OPTIONAL,
+                        'IGNORED - included for PHPStorm + PHP CS Fixer integration'
+                    ),
+                    new InputOption(
+                        'using-cache',
+                        null,
+                        InputOption::VALUE_OPTIONAL,
+                        'IGNORED - included for PHPStorm + PHP CS Fixer integration'
+                    ),
+                    new InputOption(
+                        'config',
                         null,
                         InputOption::VALUE_OPTIONAL,
                         'IGNORED - included for PHPStorm + PHP CS Fixer integration'
