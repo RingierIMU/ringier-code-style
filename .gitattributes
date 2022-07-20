@@ -11,6 +11,7 @@
 /.github export-ignore
 /.gitignore export-ignore
 /.phive export-ignore
+/.php-cs-fixer.php export-ignore
 /.phpcs.xml export-ignore
 /.styleci.yml export-ignore
 /README.md export-ignore
