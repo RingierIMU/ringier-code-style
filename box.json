@@ -8,13 +8,14 @@
         "vendor"
     ],
     "files": [
+        ".php-cs-fixer.php",
         ".phpcs.xml",
         ".styleci.yml",
         "composer.json",
         "pint.json"
     ],
     "exclude-composer-files": false,
-    "exclude-dev-files": false,
+    "exclude-dev-files": true,
     "compression": "GZ",
     "compactors": [
         "KevinGH\\Box\\Compactor\\Php",

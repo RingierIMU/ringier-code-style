@@ -11,13 +11,12 @@
         }
     ],
     "require": {
-        "php": "^8.0"
+        "php": "^8.0",
+        "laravel-zero/framework": "^9.0",
+        "nunomaduro/termwind": "^1.3"
     },
     "require-dev": {
-        "laravel-zero/framework": "^9.0",
-        "laravel/pint": "^1.0",
         "mockery/mockery": "^1.4.4",
-        "nunomaduro/termwind": "^1.3",
         "pestphp/pest": "^1.21.1"
     },
     "minimum-stability": "dev",
@@ -59,7 +58,7 @@
             "./ringier-code-style fix app config database bootstrap public routes resources tests"
         ],
         "phive-install": [
-            "phive install --copy --trust-gpg-keys 0xC00543248C87FB13,0x31C7E470E2138192"
+            "phive install --copy --trust-gpg-keys 0xC00543248C87FB13,0x31C7E470E2138192,0xE82B2FB314E9906E --force-accept-unsigned"
         ]
     }
 }
