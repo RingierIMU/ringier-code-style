@@ -70,6 +70,11 @@ class FixCommand extends Command
      */
     public function handle()
     {
+        // skip dry run since neither pint not phpcbf support it
+        if ($this->option('dry-run')) {
+            return;
+        }
+
         if ($this->argument('path')) {
             foreach ($this->argument('path') as $path) {
                 if (Str::is(['*/composer.json', 'composer.json'], $path)) {
@@ -126,7 +131,7 @@ class FixCommand extends Command
         chmod($bin, 0755);
 
         foreach ($this->argument('path') as $path) {
-            $this->info('Running phpcs on ' . $path);
+            $this->info('Running phpcbf on ' . $path);
             $process = new Process(
                 [
                     $bin,
