@@ -58,7 +58,7 @@ class ConfigDumpCommand extends Command
         bool $force
     ) {
         foreach ($files as $file) {
-            $configFile = getcwd() . $file;
+            $configFile = getcwd() . '/' . $file;
             if (!file_exists($configFile) || $force) {
                 file_put_contents($configFile, file_get_contents(base_path($file)));
             } else {
