@@ -1,6 +1,8 @@
 name: Publish the released PHAR
 
-on: release
+on:
+  release:
+    types: [ created ]
 
 jobs:
   publish:
@@ -31,9 +33,9 @@ jobs:
       - name: Create the PHAR file.
         run: ./ringier-code-style app:build ringier-code-style.phar --build-version=${{ steps.tag.outputs.tag }}
 
-      - name: Upload the PHAR to release
-        uses: JasonEtco/upload-to-release@master
-        with:
-          args: builds/ringier-code-style.phar application/php
+      - name: Upload the artifacts
+        uses: skx/github-action-publish-binaries@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: 'builds/ringier-code-style.phar'

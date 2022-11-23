@@ -129,7 +129,7 @@ class FixCommand extends Command
         file_put_contents($configFile, file_get_contents(base_path() . '/pint.json'));
 
         $bin = tempnam(sys_get_temp_dir(), "pint");
-        file_put_contents($bin, file_get_contents(base_path() . '/tools/pint'));
+        file_put_contents($bin, file_get_contents(base_path() . '/vendor/bin/pint'));
         chmod($bin, 0755);
 
         $this->info('Running pint on ' . implode(', ', $this->argument('path')));
