@@ -39,15 +39,15 @@ jobs:
         run: composer install --prefer-dist --no-progress
 
       - name: Create the PHAR file.
-        run: ./ringier-code-style app:build ringier-code-style.phar --build-version=${{ steps.tag.outputs.tag }}
+        run: ./ringier-code-style app:build ringier-code-style --build-version=${{ steps.tag.outputs.tag }}
 
       - name: Upload the PHAR artifact
         uses: actions/upload-artifact@v3
         with:
           name: ringier-code-style.phar
-          path: builds/ringier-code-style.phar
+          path: builds/ringier-code-style
 
       - name: Upload the PHAR to release
-        run: gh release upload ${{ steps.tag.outputs.tag }} builds/ringier-code-style.phar
+        run: gh release upload ${{ steps.tag.outputs.tag }} builds/ringier-code-style
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

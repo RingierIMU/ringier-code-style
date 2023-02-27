@@ -35,7 +35,7 @@
         }
     },
     "bin": [
-        "builds/ringier-code-style.phar"
+        "builds/ringier-code-style"
     ],
     "config": {
         "allow-plugins": {
