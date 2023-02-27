@@ -22,7 +22,7 @@ jobs:
           if [ "${{ github.event_name == 'workflow_dispatch' }}" ]; then
             GITHUB_REF=${{ github.event.inputs.tag }}
           fi
-          echo "tag=${GITHUB_REF##*v}" >> "$GITHUB_OUTPUT"
+          echo "tag=${GITHUB_REF##*}" >> "$GITHUB_OUTPUT"
       - name: Checkout the code
         uses: actions/checkout@v3
 
@@ -48,6 +48,6 @@ jobs:
           path: builds/ringier-code-style.phar
 
       - name: Upload the PHAR to release
-        run: gh release upload v${{ steps.tag.outputs.tag }} builds/ringier-code-style.phar
+        run: gh release upload ${{ steps.tag.outputs.tag }} builds/ringier-code-style.phar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
