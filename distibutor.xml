@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<distributor
+    xmlns="https://phar.io/composer-distributor"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    packageName="ringierimu/ringier-code-style"
+    keyDirectory="keys"
+>
+    <phar
+        name="ringier-code-style"
+        file="https://github.com/RingierIMU/ringier-code-style/releases/download/{{version}}/ringier-code-style.phar"
+        signature="https://github.com/RingierIMU/ringier-code-style/releases/download/{{version}}/ringier-code-style.phar.asc"
+    />
+
+</distributor>
