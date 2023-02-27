@@ -6,6 +6,6 @@
 >
     <phar
         name="ringier-code-style"
-        file="https://github.com/RingierIMU/ringier-code-style/releases/download/{{version}}/ringier-code-style.phar"
+        file="https://github.com/RingierIMU/ringier-code-style/releases/download/{{version}}/ringier-code-style"
     />
 </distributor>
