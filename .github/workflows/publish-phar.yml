@@ -16,13 +16,6 @@ jobs:
     name: Release PHAR
 
     steps:
-      - name: Extract the tag version
-        id: tag
-        run: |
-          if [ "${{ github.event_name == 'workflow_dispatch' }}" ]; then
-            GITHUB_REF=${{ github.event.inputs.tag }}
-          fi
-          echo "tag=${GITHUB_REF##*}" >> "$GITHUB_OUTPUT"
       - name: Checkout the code
         uses: actions/checkout@v3
 
@@ -39,7 +32,7 @@ jobs:
         run: composer install --prefer-dist --no-progress
 
       - name: Create the PHAR file.
-        run: ./ringier-code-style app:build ringier-code-style --build-version=${{ steps.tag.outputs.tag }}
+        run: ./ringier-code-style app:build ringier-code-style --build-version=${{ env.GITHUB_REF_NAME }}
 
       - name: Upload the PHAR artifact
         uses: actions/upload-artifact@v3
@@ -48,6 +41,6 @@ jobs:
           path: builds/ringier-code-style
 
       - name: Upload the PHAR to release
-        run: gh release upload ${{ steps.tag.outputs.tag }} builds/ringier-code-style
+        run: gh release upload ${{ env.GITHUB_REF_NAME }} builds/ringier-code-style
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
