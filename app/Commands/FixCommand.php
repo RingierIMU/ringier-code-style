@@ -138,9 +138,12 @@ class FixCommand extends Command
             [
                 $bin,
                 '--config=' . $configFile,
-//                '-q',
                 ...$this->argument('path'),
             ],
+            null,
+            null,
+            null,
+            60 * 10
         );
         $process->run();
 
@@ -175,6 +178,10 @@ class FixCommand extends Command
                     '-n',
                     $path,
                 ],
+                null,
+                null,
+                null,
+                60 * 10
             );
             $process->run();
 
@@ -203,6 +210,10 @@ class FixCommand extends Command
                 ],
                 $path ? [$path] : []
             ),
+            null,
+            null,
+            null,
+            60 * 10
         );
         $process->run();
 
