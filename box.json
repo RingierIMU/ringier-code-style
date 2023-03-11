@@ -8,6 +8,7 @@
         "vendor"
     ],
     "files": [
+        "stubs",
         ".php-cs-fixer.php",
         ".phpcs.xml",
         ".styleci.yml",

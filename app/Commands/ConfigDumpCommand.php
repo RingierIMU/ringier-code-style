@@ -12,6 +12,7 @@ class ConfigDumpCommand extends Command
         {--php-cs-fixer}
         {--phpcs}
         {--styleci}
+        {--github-actions}
         {--force : Overwrite any existing config files}
     ';
 
@@ -26,29 +27,47 @@ class ConfigDumpCommand extends Command
     {
         if ($this->option('pint') || $this->option('all')) {
             $this->exportFiles(
-                ['pint.json'],
-                (bool) $this->option('force')
+                [
+                    'stubs/pint.json' => 'pint.json',
+                ],
+                (bool)$this->option('force')
             );
         }
 
         if ($this->option('php-cs-fixer') || $this->option('all')) {
             $this->exportFiles(
-                ['pint.json', '.php-cs-fixer.php'],
-                (bool) $this->option('force')
+                [
+                    'pint.json' => 'pint.json',
+                    '.php-cs-fixer.php' => '.php-cs-fixer.php',
+                ],
+                (bool)$this->option('force')
             );
         }
 
         if ($this->option('phpcs') || $this->option('all')) {
             $this->exportFiles(
-                ['.phpcs.xml'],
-                (bool) $this->option('force')
+                [
+                    '.phpcs.xml' => '.phpcs.xml',
+                ],
+                (bool)$this->option('force')
             );
         }
 
         if ($this->option('styleci') || $this->option('all')) {
             $this->exportFiles(
-                ['.styleci.yml'],
-                (bool) $this->option('force')
+                [
+                    '.styleci.yml' => '.styleci.yml',
+                ],
+                (bool)$this->option('force')
+            );
+        }
+
+        if ($this->option('github-actions') || $this->option('all')) {
+            $this->exportFiles(
+                [
+                    'stubs/.github/workflows/ringier-code-style.yml' => '.github/workflows/ringier-code-style.yml',
+                ],
+                (bool)$this->option('force')
             );
         }
     }
@@ -57,12 +76,16 @@ class ConfigDumpCommand extends Command
         array $files,
         bool $force
     ) {
-        foreach ($files as $file) {
-            $configFile = getcwd() . '/' . $file;
-            if (!file_exists($configFile) || $force) {
-                file_put_contents($configFile, file_get_contents(base_path($file)));
+        foreach ($files as $src => $dest) {
+            $configFile = getcwd() . '/' . $dest;
+            if (!file_exists($dest) || $force) {
+                $dir = dirname($configFile);
+                if (!file_exists($dir)) {
+                    mkdir($dir, 0777, true);
+                }
+                file_put_contents($configFile, file_get_contents(base_path($src)));
             } else {
-                $this->error($file . ' already exists, use `--force` to overwrite it.');
+                $this->error($dest . ' already exists, use `--force` to overwrite it.');
             }
         }
     }
