@@ -27,18 +27,25 @@ jobs:
         run: |
           echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
-      - uses: actions/cache@v3
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-composer-
-
       - name: Install dependencies
-        run: composer install --no-interaction
+        run: composer global require ringierimu/ringier-code-style
 
-      - name: Run ringier-code-style
-        run: composer fix-code-style
+      - name: Setup config files
+        run: ringier-code-style config:dump --all --quiet
+
+      - name: Get changed php files
+        id: changed-files
+        uses: tj-actions/changed-files@v35
+        with:
+          files: |
+            **/*.php
+
+      - name: Run step if any php file(s) changed
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: |
+          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+            ringier-code-style fix "$file"
+          done
 
       - uses: stefanzweifel/git-auto-commit-action@v4
         with:
