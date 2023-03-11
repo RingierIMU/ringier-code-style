@@ -37,8 +37,8 @@ class ConfigDumpCommand extends Command
         if ($this->option('php-cs-fixer') || $this->option('all')) {
             $this->exportFiles(
                 [
-                    'pint.json' => 'pint.json',
-                    '.php-cs-fixer.php' => '.php-cs-fixer.php',
+                    'stubs/pint.json' => 'pint.json',
+                    'stubs/.php-cs-fixer.php' => '.php-cs-fixer.php',
                 ],
                 (bool)$this->option('force')
             );
@@ -47,7 +47,7 @@ class ConfigDumpCommand extends Command
         if ($this->option('phpcs') || $this->option('all')) {
             $this->exportFiles(
                 [
-                    '.phpcs.xml' => '.phpcs.xml',
+                    'stubs/.phpcs.xml' => '.phpcs.xml',
                 ],
                 (bool)$this->option('force')
             );
@@ -56,7 +56,7 @@ class ConfigDumpCommand extends Command
         if ($this->option('styleci') || $this->option('all')) {
             $this->exportFiles(
                 [
-                    '.styleci.yml' => '.styleci.yml',
+                    'stubs/.styleci.yml' => '.styleci.yml',
                 ],
                 (bool)$this->option('force')
             );
