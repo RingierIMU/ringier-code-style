@@ -8,6 +8,7 @@
         "vendor"
     ],
     "files": [
+        "stubs/.github/workflows/ringier-code-style.yml",
         ".php-cs-fixer.php",
         ".phpcs.xml",
         ".styleci.yml",
