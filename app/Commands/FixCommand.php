@@ -124,9 +124,13 @@ class FixCommand extends Command
 
     protected function runPint()
     {
-        $configFile = tempnam(sys_get_temp_dir(), "pint");
-        rename($configFile, $configFile .= '.json');
-        file_put_contents($configFile, file_get_contents(base_path() . '/pint.json'));
+        if (file_exists('pint.json')) {
+            $configFile = 'pint.json';
+        } else {
+            $configFile = tempnam(sys_get_temp_dir(), "pint");
+            rename($configFile, $configFile .= '.json');
+            file_put_contents($configFile, file_get_contents(base_path() . '/pint.json'));
+        }
 
         $bin = tempnam(sys_get_temp_dir(), "pint");
         file_put_contents($bin, file_get_contents(base_path() . '/tools/pint'));
@@ -158,9 +162,13 @@ class FixCommand extends Command
 
     protected function runPHPCS()
     {
-        $configFile = tempnam(sys_get_temp_dir(), "phpcs");
-        rename($configFile, $configFile .= '.xml');
-        file_put_contents($configFile, file_get_contents(base_path() . '/.phpcs.xml'));
+        if (file_exists('.phpcs.xml')) {
+            $configFile = './.phpcs.xml';
+        } else {
+            $configFile = tempnam(sys_get_temp_dir(), "phpcs");
+            rename($configFile, $configFile .= '.xml');
+            file_put_contents($configFile, file_get_contents(base_path() . '/.phpcs.xml'));
+        }
 
         $bin = tempnam(sys_get_temp_dir(), "phpcbf");
         file_put_contents($bin, file_get_contents(base_path() . '/tools/phpcbf'));
