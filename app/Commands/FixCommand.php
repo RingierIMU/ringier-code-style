@@ -157,7 +157,7 @@ class FixCommand extends Command
 
         echo $process->getOutput();
 
-        @unlink($configFile);
+        @unlink($bin);
     }
 
     protected function runPHPCS()
@@ -200,7 +200,6 @@ class FixCommand extends Command
             echo $process->getOutput();
         }
 
-        @unlink($configFile);
         @unlink($bin);
     }
 
@@ -230,5 +229,7 @@ class FixCommand extends Command
         }
 
         echo $process->getOutput();
+
+        @unlink($bin);
     }
 }
