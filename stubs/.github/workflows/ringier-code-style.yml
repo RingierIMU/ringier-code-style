@@ -13,8 +13,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-        with:
-          ref: ${{ github.head_ref }}
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -43,9 +41,7 @@ jobs:
       - name: Run step if any php file(s) changed
         if: steps.changed-files.outputs.any_changed == 'true'
         run: |
-          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
-            ringier-code-style fix "$file"
-          done
+          ringier-code-style fix ${{ steps.changed-files.outputs.all_changed_files }}
 
       - uses: stefanzweifel/git-auto-commit-action@v4
         with:
