@@ -58,6 +58,11 @@
         },
         "no_php4_constructor": true,
         "no_short_bool_cast": true,
+        "no_superfluous_phpdoc_tags": {
+            "allow_mixed": false,
+            "remove_inheritdoc": true,
+            "allow_unused_params": true
+        },
         "no_trailing_comma_in_singleline_array": true,
         "no_unused_imports": true,
         "no_whitespace_before_comma_in_array": true,
