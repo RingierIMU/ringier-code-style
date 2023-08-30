@@ -132,7 +132,7 @@ class FixCommand extends Command
 
         $bin = tempnam(sys_get_temp_dir(), "pint");
         file_put_contents($bin, file_get_contents(base_path() . '/tools/pint'));
-        chmod($bin, 0755);
+        chmod($bin, 0o755);
 
         $this->info('Running pint on ' . implode(', ', $this->argument('path')));
 
@@ -170,7 +170,7 @@ class FixCommand extends Command
 
         $bin = tempnam(sys_get_temp_dir(), "phpcbf");
         file_put_contents($bin, file_get_contents(base_path() . '/tools/phpcbf'));
-        chmod($bin, 0755);
+        chmod($bin, 0o755);
 
         foreach ($this->argument('path') as $path) {
             $this->info('Running phpcbf on ' . $path);
@@ -205,7 +205,7 @@ class FixCommand extends Command
     {
         $bin = tempnam(sys_get_temp_dir(), "composer-normalize");
         file_put_contents($bin, file_get_contents(base_path() . '/tools/composer-normalize'));
-        chmod($bin, 0755);
+        chmod($bin, 0o755);
 
         $this->info('Running composer normalize');
         $process = new Process(

@@ -1,12 +1,15 @@
 {
     "preset": "psr12",
     "rules": {
+        "@PHP81Migration": true,
         "@PSR12": true,
         "align_multiline_comment": true,
         "array_indentation": true,
+        "array_push": true,
         "array_syntax": {
             "syntax": "short"
         },
+        "backtick_to_shell_exec": true,
         "binary_operator_spaces": true,
         "blank_line_before_statement": {
             "statements": [
@@ -27,6 +30,7 @@
         "concat_space": {
             "spacing": "one"
         },
+        "ereg_to_preg": true,
         "function_typehint_space": true,
         "general_phpdoc_annotation_remove": {
             "annotations": [
@@ -42,12 +46,15 @@
         "magic_method_casing": true,
         "mb_str_functions": true,
         "method_chaining_indentation": true,
+        "modernize_strpos": true,
         "modernize_types_casting": true,
         "multiline_comment_opening_closing": true,
         "multiline_whitespace_before_semicolons": {
             "strategy": "no_multi_line"
         },
         "native_function_casing": true,
+        "no_alias_functions": true,
+        "no_alias_language_construct_call": true,
         "no_blank_lines_after_phpdoc": true,
         "no_empty_comment": true,
         "no_empty_phpdoc": true,
@@ -56,24 +63,26 @@
         "no_mixed_echo_print": {
             "use": "echo"
         },
+        "no_multiline_whitespace_around_double_arrow": true,
         "no_php4_constructor": true,
         "no_short_bool_cast": true,
         "no_superfluous_phpdoc_tags": {
             "allow_mixed": false,
-            "remove_inheritdoc": true,
-            "allow_unused_params": true
+            "allow_unused_params": true,
+            "remove_inheritdoc": true
         },
         "no_trailing_comma_in_singleline_array": true,
         "no_unused_imports": true,
         "no_whitespace_before_comma_in_array": true,
+        "normalize_index_brace": true,
         "object_operator_without_whitespace": true,
         "ordered_imports": {
-            "sort_algorithm": "alpha",
             "imports_order": [
                 "const",
                 "class",
                 "function"
-            ]
+            ],
+            "sort_algorithm": "alpha"
         },
         "phpdoc_add_missing_param_annotation": {
             "only_untyped": false
@@ -84,8 +93,8 @@
         "phpdoc_indent": true,
         "phpdoc_no_alias_tag": {
             "replacements": {
-                "type": "var",
-                "link": "see"
+                "link": "see",
+                "type": "var"
             }
         },
         "phpdoc_no_empty_return": true,
@@ -98,8 +107,11 @@
         "phpdoc_trim": true,
         "phpdoc_types": true,
         "phpdoc_var_without_name": true,
+        "pow_to_exponentiation": true,
         "psr_autoloading": true,
         "random_api_migration": true,
+        "return_to_yield_from": true,
+        "set_type_to_cast": true,
         "single_line_comment_style": {
             "comment_types": [
                 "asterisk",
@@ -115,6 +127,10 @@
         },
         "trim_array_spaces": true,
         "unary_operator_spaces": true,
+        "whitespace_after_comma_in_array": {
+            "ensure_single_space": true
+        },
+        "yield_from_array_to_yields": true,
         "yoda_style": false
     }
 }
