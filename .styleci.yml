@@ -4,15 +4,21 @@ php:
   disabled:
   enabled:
     - alpha_ordered_imports
+    - array_push
+    - backtick_to_shell_exec
     - binary_operator_spaces
     - blank_line_before_return
     - cast_spaces
+    - ereg_to_preg
     - hash_to_slash_comment
     - heredoc_to_nowdoc
     - include
     - linebreak_after_opening_tag
     - method_separation
+    - modernize_strpos
     - native_function_casing
+    - no_alias_functions
+    - no_alias_language_construct_call
     - no_blank_lines_after_return
     - no_blank_lines_after_throw
     - no_blank_lines_between_imports
@@ -21,10 +27,12 @@ php:
     - no_empty_phpdoc
     - no_empty_statement
     - no_extra_consecutive_blank_lines
+    - no_multiline_whitespace_around_double_arrow
     - no_short_bool_cast
     - no_singleline_whitespace_before_semicolons
     - no_spaces_inside_offset
     - no_spaces_outside_offset
+    - no_superfluous_phpdoc_tags
     - no_trailing_comma_in_list_call
     - no_trailing_comma_in_singleline_array
     - no_unneeded_control_parentheses
@@ -48,7 +56,10 @@ php:
     - phpdoc_type_to_var
     - phpdoc_types
     - phpdoc_var_without_name
+    - pow_to_exponentiation
     - print_to_echo
+    - return_to_yield_from
+    - set_type_to_cast
     - short_array_syntax
     - space_after_semicolon
     - standardize_not_equals
@@ -58,6 +69,7 @@ php:
     - unalign_equals
     - unary_operator_spaces
     - whitespace_after_comma_in_array
+    - yield_from_array_to_yields
   finder:
     exclude:
       - "modules"
