@@ -110,7 +110,6 @@
         "pow_to_exponentiation": true,
         "psr_autoloading": true,
         "random_api_migration": true,
-        "return_to_yield_from": true,
         "set_type_to_cast": true,
         "single_line_comment_style": {
             "comment_types": [
