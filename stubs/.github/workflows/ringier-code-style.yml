@@ -12,18 +12,29 @@ jobs:
       contents: write
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: 8.1
+          php-version: 8.2
           tools: composer:v2
 
       - name: Get Composer Cache Directory
         id: composer-cache
         run: |
           echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+      - uses: actions/cache@v3
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-ringier-code-style-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-ringier-code-style-
 
       - name: Install dependencies
         run: composer global require ringierimu/ringier-code-style
@@ -33,7 +44,7 @@ jobs:
 
       - name: Get changed php files
         id: changed-files
-        uses: tj-actions/changed-files@v35
+        uses: tj-actions/changed-files@v39
         with:
           files: |
             **/*.php
