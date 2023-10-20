@@ -39,6 +39,7 @@ php:
     - no_useless_return
     - no_whitespace_before_comma_in_array
     - normalize_index_brace
+    - nullable_type_declaration
     - object_operator_without_whitespace
     - phpdoc_add_missing_param_annotation
     - phpdoc_indent

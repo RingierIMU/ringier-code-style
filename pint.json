@@ -75,6 +75,9 @@
         "no_unused_imports": true,
         "no_whitespace_before_comma_in_array": true,
         "normalize_index_brace": true,
+        "nullable_type_declaration": {
+            "syntax": "union"
+        },
         "object_operator_without_whitespace": true,
         "ordered_imports": {
             "imports_order": [
