@@ -64,7 +64,6 @@ php:
     - trim_array_spaces
     - unalign_double_arrow
     - unalign_equals
-    - unary_operator_spaces
     - whitespace_after_comma_in_array
   finder:
     exclude:
