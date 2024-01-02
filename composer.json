@@ -58,7 +58,7 @@
             "./ringier-code-style fix app config database bootstrap public routes resources tests"
         ],
         "phive-install": [
-            "phive install --copy --trust-gpg-keys 0xC00543248C87FB13,0x31C7E470E2138192,0xE82B2FB314E9906E --force-accept-unsigned"
+            "phive install --copy --trust-gpg-keys 0xC00543248C87FB13,0x31C7E470E2138192,0xE82B2FB314E9906E,0x5E6DDE998AB73B8E --force-accept-unsigned"
         ]
     }
 }

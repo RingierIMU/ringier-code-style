@@ -6,7 +6,6 @@ php:
     - alpha_ordered_imports
     - array_push
     - backtick_to_shell_exec
-    - binary_operator_spaces
     - blank_line_before_return
     - cast_spaces
     - ereg_to_preg
