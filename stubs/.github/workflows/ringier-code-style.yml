@@ -29,7 +29,7 @@ jobs:
         id: composer-cache
         run: |
           echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-ringier-code-style-${{ hashFiles('**/composer.lock') }}
@@ -44,7 +44,7 @@ jobs:
 
       - name: Get changed php files
         id: changed-files
-        uses: tj-actions/changed-files@v39
+        uses: tj-actions/changed-files@v42
         with:
           files: |
             **/*.php
@@ -54,6 +54,6 @@ jobs:
         run: |
           ringier-code-style fix ${{ steps.changed-files.outputs.all_changed_files }}
 
-      - uses: stefanzweifel/git-auto-commit-action@v4
+      - uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: Apply ringier-code-style changes
