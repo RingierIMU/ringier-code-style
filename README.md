@@ -1,6 +1,6 @@
 # ringier-code-style
 
-RingerSA PHP Code Style
+RingierSA PHP Code Style
 
 ## Installation
 
