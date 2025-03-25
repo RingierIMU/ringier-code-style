@@ -19,7 +19,6 @@ php:
     - no_alias_functions
     - no_blank_lines_after_return
     - no_blank_lines_after_throw
-    - no_blank_lines_between_imports
     - no_blank_lines_between_traits
     - no_empty_comment
     - no_empty_phpdoc
