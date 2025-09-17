@@ -140,6 +140,8 @@ class FixCommand extends Command
             [
                 $bin,
                 '--config=' . $configFile,
+                // https://github.com/laravel/pint/issues/377
+                //'--parallel',
                 ...$this->argument('path'),
             ],
             null,
