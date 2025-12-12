@@ -32,12 +32,12 @@ php:
     - no_superfluous_phpdoc_tags
     - no_trailing_comma_in_list_call
     - no_trailing_comma_in_singleline_array
-    - no_unneeded_control_parentheses
     - no_unused_imports
     - no_useless_return
     - no_whitespace_before_comma_in_array
     - normalize_index_brace
     - object_operator_without_whitespace
+    #    - operator_linebreak_beginning
     - phpdoc_add_missing_param_annotation
     - phpdoc_indent
     - phpdoc_inline_tag
@@ -60,6 +60,8 @@ php:
     - space_after_semicolon
     - standardize_not_equals
     - trailing_comma_in_multiline_array
+    #    - trailing_comma_in_multiline_call
+    #    - trailing_comma_in_multiline_definition
     - trim_array_spaces
     - unalign_double_arrow
     - unalign_equals
