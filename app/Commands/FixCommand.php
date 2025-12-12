@@ -24,25 +24,25 @@ class FixCommand extends Command
                     new InputArgument(
                         'path',
                         InputArgument::IS_ARRAY,
-                        'The path to fix'
+                        'The path to fix',
                     ),
                     new InputOption(
                         'path-mode',
                         null,
                         InputOption::VALUE_OPTIONAL,
-                        'IGNORED - included for PHPStorm + PHP CS Fixer integration'
+                        'IGNORED - included for PHPStorm + PHP CS Fixer integration',
                     ),
                     new InputOption(
                         'config',
                         null,
                         InputOption::VALUE_OPTIONAL,
-                        'IGNORED - included for PHPStorm + PHP CS Fixer integration'
+                        'IGNORED - included for PHPStorm + PHP CS Fixer integration',
                     ),
                     new InputOption(
                         'dry-run',
                         null,
                         InputOption::VALUE_NONE,
-                        'IGNORED - included for PHPStorm + PHP CS Fixer integration'
+                        'IGNORED - included for PHPStorm + PHP CS Fixer integration',
                     ),
                     new InputOption(
                         'allow-risky',
@@ -54,45 +54,45 @@ class FixCommand extends Command
                         'diff',
                         null,
                         InputOption::VALUE_NONE,
-                        'IGNORED - included for PHPStorm + PHP CS Fixer integration'
+                        'IGNORED - included for PHPStorm + PHP CS Fixer integration',
                     ),
                     new InputOption(
                         'format',
                         null,
                         InputOption::VALUE_OPTIONAL,
-                        'IGNORED - included for PHPStorm + PHP CS Fixer integration'
+                        'IGNORED - included for PHPStorm + PHP CS Fixer integration',
                     ),
                     new InputOption(
                         'rules',
                         null,
                         InputOption::VALUE_OPTIONAL,
-                        'IGNORED - included for PHPStorm + PHP CS Fixer integration'
+                        'IGNORED - included for PHPStorm + PHP CS Fixer integration',
                     ),
                     new InputOption(
                         'stop-on-violation',
                         null,
                         InputOption::VALUE_NONE,
-                        'IGNORED - included for PHPStorm + PHP CS Fixer integration'
+                        'IGNORED - included for PHPStorm + PHP CS Fixer integration',
                     ),
                     new InputOption(
                         'show-progress',
                         null,
                         InputOption::VALUE_OPTIONAL,
-                        'IGNORED - included for PHPStorm + PHP CS Fixer integration'
+                        'IGNORED - included for PHPStorm + PHP CS Fixer integration',
                     ),
                     new InputOption(
                         'using-cache',
                         null,
                         InputOption::VALUE_OPTIONAL,
-                        'IGNORED - included for PHPStorm + PHP CS Fixer integration'
+                        'IGNORED - included for PHPStorm + PHP CS Fixer integration',
                     ),
                     new InputOption(
                         'config',
                         null,
                         InputOption::VALUE_OPTIONAL,
-                        'IGNORED - included for PHPStorm + PHP CS Fixer integration'
+                        'IGNORED - included for PHPStorm + PHP CS Fixer integration',
                     ),
-                ]
+                ],
             );
     }
 
@@ -101,11 +101,6 @@ class FixCommand extends Command
      */
     public function handle()
     {
-        // skip dry run since neither pint not phpcbf support it
-        if ($this->option('dry-run')) {
-            return;
-        }
-
         if ($this->argument('path')) {
             foreach ($this->argument('path') as $path) {
                 if (Str::is(['*/composer.json', 'composer.json'], $path)) {
@@ -113,41 +108,41 @@ class FixCommand extends Command
                 }
             }
 
-            $this->runPint();
-            $this->runPHPCS();
+            $this->runPHPCSFixer();
         } else {
             $this->runComposerNormalize();
         }
     }
 
-    protected function runPint()
+    protected function runPHPCSFixer()
     {
-        if (file_exists('pint.json')) {
-            $configFile = 'pint.json';
+        if (file_exists('.php-cs-fixer.php')) {
+            $configFile = '.php-cs-fixer.php';
         } else {
-            $configFile = tempnam(sys_get_temp_dir(), "pint");
-            rename($configFile, $configFile .= '.json');
-            file_put_contents($configFile, file_get_contents(base_path() . '/pint.json'));
+            $configFile = tempnam(sys_get_temp_dir(), 'php-cs-fixer');
+            rename($configFile, '.php-cs-fixer.php');
+            file_put_contents($configFile, file_get_contents(base_path() . '/.php-cs-fixer.php'));
         }
 
-        $bin = tempnam(sys_get_temp_dir(), "pint");
-        file_put_contents($bin, file_get_contents(base_path() . '/tools/pint'));
+        $bin = tempnam(sys_get_temp_dir(), 'php-cs-fixer');
+        file_put_contents($bin, file_get_contents(base_path() . '/tools/php-cs-fixer'));
         chmod($bin, 0o755);
 
-        $this->info('Running pint on ' . implode(', ', $this->argument('path')));
+        $this->info('Running php-cs-fixer on ' . implode(', ', $this->argument('path')));
 
         $process = new Process(
             [
                 $bin,
+                'fix',
                 '--config=' . $configFile,
-                // https://github.com/laravel/pint/issues/377
-                //'--parallel',
+                '--allow-risky=yes',
+                '--using-cache=no',
                 ...$this->argument('path'),
             ],
             null,
             null,
             null,
-            60 * 10
+            60 * 10,
         );
         $process->run();
 
@@ -160,52 +155,9 @@ class FixCommand extends Command
         @unlink($bin);
     }
 
-    protected function runPHPCS()
-    {
-        if (file_exists('.phpcs.xml')) {
-            $configFile = './.phpcs.xml';
-        } else {
-            $configFile = tempnam(sys_get_temp_dir(), "phpcs");
-            rename($configFile, $configFile .= '.xml');
-            file_put_contents($configFile, file_get_contents(base_path() . '/.phpcs.xml'));
-        }
-
-        $bin = tempnam(sys_get_temp_dir(), "phpcbf");
-        file_put_contents($bin, file_get_contents(base_path() . '/tools/phpcbf'));
-        chmod($bin, 0o755);
-
-        foreach ($this->argument('path') as $path) {
-            $this->info('Running phpcbf on ' . $path);
-            $process = new Process(
-                [
-                    $bin,
-                    '--extensions=php',
-                    '--standard=' . $configFile,
-                    '-m',
-                    '-q',
-                    '-n',
-                    $path,
-                ],
-                null,
-                null,
-                null,
-                60 * 10
-            );
-            $process->run();
-
-            if (!$process->isSuccessful()) {
-                $this->error($process->getErrorOutput());
-            }
-
-            echo $process->getOutput();
-        }
-
-        @unlink($bin);
-    }
-
     protected function runComposerNormalize(string $path = null)
     {
-        $bin = tempnam(sys_get_temp_dir(), "composer-normalize");
+        $bin = tempnam(sys_get_temp_dir(), 'composer-normalize');
         file_put_contents($bin, file_get_contents(base_path() . '/tools/composer-normalize'));
         chmod($bin, 0o755);
 
@@ -215,12 +167,12 @@ class FixCommand extends Command
                 [
                     $bin,
                 ],
-                $path ? [$path] : []
+                $path ? [$path] : [],
             ),
             null,
             null,
             null,
-            60 * 10
+            60 * 10,
         );
         $process->run();
 

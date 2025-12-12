@@ -10,10 +10,8 @@
     "files": [
         "stubs/.github/workflows/ringier-code-style.yml",
         ".php-cs-fixer.php",
-        ".phpcs.xml",
         ".styleci.yml",
-        "composer.json",
-        "pint.json"
+        "composer.json"
     ],
     "exclude-composer-files": false,
     "exclude-dev-files": false,

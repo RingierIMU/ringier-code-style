@@ -8,9 +8,7 @@ class ConfigDumpCommand extends Command
 {
     protected $signature = 'config:dump
         {--all}
-        {--pint}
         {--php-cs-fixer}
-        {--phpcs}
         {--styleci}
         {--force : Overwrite any existing config files}
     ';
@@ -22,38 +20,24 @@ class ConfigDumpCommand extends Command
      */
     public function handle()
     {
-        if ($this->option('pint') || $this->option('all')) {
-            $this->exportFiles(
-                ['pint.json'],
-                (bool) $this->option('force')
-            );
-        }
-
         if ($this->option('php-cs-fixer') || $this->option('all')) {
             $this->exportFiles(
-                ['pint.json', '.php-cs-fixer.php'],
-                (bool) $this->option('force')
-            );
-        }
-
-        if ($this->option('phpcs') || $this->option('all')) {
-            $this->exportFiles(
-                ['.phpcs.xml'],
-                (bool) $this->option('force')
+                ['.php-cs-fixer.php'],
+                (bool) $this->option('force'),
             );
         }
 
         if ($this->option('styleci') || $this->option('all')) {
             $this->exportFiles(
                 ['.styleci.yml'],
-                (bool) $this->option('force')
+                (bool) $this->option('force'),
             );
         }
     }
 
     protected function exportFiles(
         array $files,
-        bool $force
+        bool $force,
     ) {
         foreach ($files as $file) {
             $configFile = getcwd() . '/' . $file;
