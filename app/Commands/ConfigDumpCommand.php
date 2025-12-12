@@ -11,6 +11,8 @@ class ConfigDumpCommand extends Command
         {--php-cs-fixer}
         {--styleci}
         {--force : Overwrite any existing config files}
+        {--pint : Deprecated}
+        {--phpcs : Deprecated}
     ';
 
     protected $description = 'Create the initial config files.';
