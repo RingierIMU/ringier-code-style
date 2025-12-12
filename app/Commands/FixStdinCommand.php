@@ -25,19 +25,19 @@ class FixStdinCommand extends Command
                         'path-mode',
                         null,
                         InputOption::VALUE_OPTIONAL,
-                        'IGNORED - included for PHPStorm + PHP CS Fixer integration'
+                        'IGNORED - included for PHPStorm + PHP CS Fixer integration',
                     ),
                     new InputOption(
                         'config',
                         null,
                         InputOption::VALUE_OPTIONAL,
-                        'IGNORED - included for PHPStorm + PHP CS Fixer integration'
+                        'IGNORED - included for PHPStorm + PHP CS Fixer integration',
                     ),
                     new InputOption(
                         'dry-run',
                         null,
                         InputOption::VALUE_NONE,
-                        'IGNORED - included for PHPStorm + PHP CS Fixer integration'
+                        'IGNORED - included for PHPStorm + PHP CS Fixer integration',
                     ),
                     new InputOption(
                         'allow-risky',
@@ -49,45 +49,45 @@ class FixStdinCommand extends Command
                         'diff',
                         null,
                         InputOption::VALUE_NONE,
-                        'IGNORED - included for PHPStorm + PHP CS Fixer integration'
+                        'IGNORED - included for PHPStorm + PHP CS Fixer integration',
                     ),
                     new InputOption(
                         'format',
                         null,
                         InputOption::VALUE_OPTIONAL,
-                        'IGNORED - included for PHPStorm + PHP CS Fixer integration'
+                        'IGNORED - included for PHPStorm + PHP CS Fixer integration',
                     ),
                     new InputOption(
                         'rules',
                         null,
                         InputOption::VALUE_OPTIONAL,
-                        'IGNORED - included for PHPStorm + PHP CS Fixer integration'
+                        'IGNORED - included for PHPStorm + PHP CS Fixer integration',
                     ),
                     new InputOption(
                         'stop-on-violation',
                         null,
                         InputOption::VALUE_NONE,
-                        'IGNORED - included for PHPStorm + PHP CS Fixer integration'
+                        'IGNORED - included for PHPStorm + PHP CS Fixer integration',
                     ),
                     new InputOption(
                         'show-progress',
                         null,
                         InputOption::VALUE_OPTIONAL,
-                        'IGNORED - included for PHPStorm + PHP CS Fixer integration'
+                        'IGNORED - included for PHPStorm + PHP CS Fixer integration',
                     ),
                     new InputOption(
                         'using-cache',
                         null,
                         InputOption::VALUE_OPTIONAL,
-                        'IGNORED - included for PHPStorm + PHP CS Fixer integration'
+                        'IGNORED - included for PHPStorm + PHP CS Fixer integration',
                     ),
                     new InputOption(
                         'config',
                         null,
                         InputOption::VALUE_OPTIONAL,
-                        'IGNORED - included for PHPStorm + PHP CS Fixer integration'
+                        'IGNORED - included for PHPStorm + PHP CS Fixer integration',
                     ),
-                ]
+                ],
             );
     }
 
@@ -96,80 +96,43 @@ class FixStdinCommand extends Command
      */
     public function handle()
     {
-        // skip dry run since neither pint not phpcbf support it
-        if ($this->option('dry-run')) {
-            return;
-        }
-
-        $this->stdinTmp = tempnam(sys_get_temp_dir(), "stdin");
+        $this->stdinTmp = tempnam(sys_get_temp_dir(), 'stdin');
         file_put_contents($this->stdinTmp, (string) file_get_contents('php://stdin'));
 
-        $this->runPint();
-        $this->runPHPCS();
+        $this->runPHPCSFixer();
 
         echo file_get_contents($this->stdinTmp);
 
         @unlink($this->stdinTmp);
     }
 
-    protected function runPint()
+    protected function runPHPCSFixer()
     {
-        if (file_exists('pint.json')) {
-            $configFile = 'pint.json';
+        if (file_exists('.php-cs-fixer.php')) {
+            $configFile = '.php-cs-fixer.php';
         } else {
-            $configFile = tempnam(sys_get_temp_dir(), "pint");
-            rename($configFile, $configFile .= '.json');
-            file_put_contents($configFile, file_get_contents(base_path() . '/pint.json'));
+            $configFile = tempnam(sys_get_temp_dir(), 'php-cs-fixer');
+            rename($configFile, '.php-cs-fixer.php');
+            file_put_contents($configFile, file_get_contents(base_path() . '/.php-cs-fixer.php'));
         }
 
-        $bin = tempnam(sys_get_temp_dir(), "pint");
-        file_put_contents($bin, file_get_contents(base_path() . '/tools/pint'));
+        $bin = tempnam(sys_get_temp_dir(), 'php-cs-fixer');
+        file_put_contents($bin, file_get_contents(base_path() . '/tools/php-cs-fixer'));
         chmod($bin, 0o755);
 
         $process = new Process(
             [
                 $bin,
+                'fix',
                 '--config=' . $configFile,
+                '--allow-risky=yes',
+                '--using-cache=no',
                 $this->stdinTmp,
             ],
             null,
             null,
             null,
-            60 * 10
-        );
-        $process->run();
-
-        @unlink($bin);
-    }
-
-    protected function runPHPCS()
-    {
-        if (file_exists('.phpcs.xml')) {
-            $configFile = './.phpcs.xml';
-        } else {
-            $configFile = tempnam(sys_get_temp_dir(), "phpcs");
-            rename($configFile, $configFile .= '.xml');
-            file_put_contents($configFile, file_get_contents(base_path() . '/.phpcs.xml'));
-        }
-
-        $bin = tempnam(sys_get_temp_dir(), "phpcbf");
-        file_put_contents($bin, file_get_contents(base_path() . '/tools/phpcbf'));
-        chmod($bin, 0o755);
-
-        $process = new Process(
-            [
-                $bin,
-                '--extensions=php',
-                '--standard=' . $configFile,
-                '-m',
-                '-q',
-                '-n',
-                $this->stdinTmp,
-            ],
-            null,
-            null,
-            null,
-            60 * 10
+            60 * 10,
         );
         $process->run();
 
