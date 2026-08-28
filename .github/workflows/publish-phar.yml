@@ -11,7 +11,7 @@ on:
 
 jobs:
   publish:
-    runs-on: ubuntu-latest
+    runs-on: ubicloud-standard-2-arm
 
     name: Release PHAR
 
