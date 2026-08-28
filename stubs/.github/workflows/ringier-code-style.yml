@@ -4,56 +4,19 @@ on:
   pull_request:
 
 concurrency:
-  # Cancel superseded runs on rapid pushes so two runs never race to push fixes.
+  # Cancel superseded runs on rapid pushes so two runs never race to commit fixes.
   group: ${{ github.workflow }}-${{ github.head_ref }}
   cancel-in-progress: true
 
 jobs:
   ringier-code-style:
-    runs-on: ubicloud-standard-2-arm
-
-    # GITHUB_TOKEN cannot push to a fork's branch — skip PRs from forks instead of failing.
-    if: github.event.pull_request.head.repo.full_name == github.repository
-
-    permissions:
-      # Give the default GITHUB_TOKEN write permission to commit and push the changed files back to the repository.
-      contents: write
-
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          # Check out the PR branch itself — git-auto-commit-action errors on the
-          # detached merge commit that pull_request events check out by default.
-          ref: ${{ github.head_ref }}
-          # Required to push commits back to the repository.
-          persist-credentials: true
-          # Full history so changed files can be diffed against the base branch.
-          fetch-depth: 0
-
-      - name: Get changed php files
-        id: changed-files
-        run: |
-          files=$(git diff --name-only --diff-filter=ACMR "origin/${{ github.base_ref }}...HEAD" -- '*.php' | tr '\n' ' ')
-          echo "files=$files" >> "$GITHUB_OUTPUT"
-
-      - name: Setup PHP
-        if: steps.changed-files.outputs.files != ''
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: 8.3
-          tools: composer:v2
-
-      - name: Install ringier-code-style
-        if: steps.changed-files.outputs.files != ''
-        run: composer global require ringierimu/ringier-code-style
-
-      - name: Fix code style
-        if: steps.changed-files.outputs.files != ''
-        run: |
-          ringier-code-style config:dump --all --quiet
-          ringier-code-style fix ${{ steps.changed-files.outputs.files }}
-
-      - uses: stefanzweifel/git-auto-commit-action@v7
-        if: steps.changed-files.outputs.files != ''
-        with:
-          commit_message: Apply ringier-code-style changes
+    # The job lives in the fixer's own repo, so a fix to it reaches every consuming repo.
+    # Pin to a release tag: https://github.com/RingierIMU/ringier-code-style/releases
+    uses: RingierIMU/ringier-code-style/.github/workflows/fix-code-style.yml@main
+    with:
+      runs-on: ubicloud-standard-2-arm
+    secrets:
+      # Organisation secrets: the Client ID and private key of a GitHub App installed on
+      # this repository with the Contents: read and write permission.
+      app-client-id: ${{ secrets.PR_SIGNING_BOT_CLIENT_ID }}
+      app-private-key: ${{ secrets.PR_SIGNING_BOT_PRIVATE_KEY }}

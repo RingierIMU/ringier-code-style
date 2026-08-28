@@ -25,7 +25,13 @@ vendor/bin/ringier-code-style config:dump --all
 ### Fix code style automatically on every pull request
 
 `fix-code-style.yml` is a reusable workflow. It fixes the PHP files a pull request touches and
-commits the result straight back to the PR branch:
+commits the result straight back to the PR branch. Drop the caller into your repository with:
+
+```bash
+vendor/bin/ringier-code-style config:dump --workflow
+```
+
+which writes:
 
 ```yaml
 # .github/workflows/ringier-code-style.yml
@@ -34,21 +40,34 @@ name: ringier-code-style
 on:
   pull_request:
 
+concurrency:
+  # Cancel superseded runs on rapid pushes so two runs never race to commit fixes.
+  group: ${{ github.workflow }}-${{ github.head_ref }}
+  cancel-in-progress: true
+
 jobs:
-  fix-code-style:
+  ringier-code-style:
+    # The job lives in the fixer's own repo, so a fix to it reaches every consuming repo.
     # Pin to a release tag: https://github.com/RingierIMU/ringier-code-style/releases
-    uses: RingierIMU/ringier-code-style/.github/workflows/fix-code-style.yml@<tag>
+    uses: RingierIMU/ringier-code-style/.github/workflows/fix-code-style.yml@main
     with:
-      php-version: '8.3'      # optional, defaults to 8.3
-      runs-on: ubuntu-latest  # optional, defaults to ubuntu-latest
+      runs-on: ubicloud-standard-2-arm
     secrets:
-      app-client-id: ${{ secrets.STYLE_BOT_CLIENT_ID }}
-      app-private-key: ${{ secrets.STYLE_BOT_PRIVATE_KEY }}
+      # Organisation secrets: the Client ID and private key of a GitHub App installed on
+      # this repository with the Contents: read and write permission.
+      app-client-id: ${{ secrets.PR_SIGNING_BOT_CLIENT_ID }}
+      app-private-key: ${{ secrets.PR_SIGNING_BOT_PRIVATE_KEY }}
 ```
 
+Both `with:` inputs are optional: `php-version` defaults to `8.3` and `runs-on` to
+`ubuntu-latest`.
+
 The two secrets are the Client ID and private key of a GitHub App installed on your repository
-with the **Contents: read and write** permission. A GitHub App is used rather than the default
-`GITHUB_TOKEN` for two reasons:
+with the **Contents: read and write** permission. In the RingierIMU organisation they already exist
+as the organisation secrets `PR_SIGNING_BOT_CLIENT_ID` and `PR_SIGNING_BOT_PRIVATE_KEY`; grant your
+repository access to them rather than creating a second app.
+
+A GitHub App is used rather than the default `GITHUB_TOKEN` for two reasons:
 
 - Commits made with `GITHUB_TOKEN` do not trigger further workflow runs, so the pull request's
   required checks would never report against the style commit and the PR would stay blocked.
