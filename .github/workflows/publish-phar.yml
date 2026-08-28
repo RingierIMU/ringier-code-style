@@ -44,12 +44,8 @@ jobs:
 
       - name: Install the dependencies
         # laravel-zero/framework is a dev dependency and is required to build, so no --no-dev.
+        # post-install-cmd runs phive, which populates the gitignored tools/ that box.json bundles.
         run: composer install --prefer-dist --no-progress
-
-      - name: Install the bundled tools
-        # tools/ is gitignored but box.json bundles it into the PHAR — without this
-        # the compile step fails, and a PHAR built without it could not run `fix`.
-        run: phive install --trust-gpg-keys BBAB5DF0A0D6672989CF1869E82B2FB314E9906E,0FDE18AE1D09E19F60F6B1CBC00543248C87FB13
 
       - name: Create the PHAR file.
         run: ./ringier-code-style app:build ringier-code-style --build-version="$TAG"
