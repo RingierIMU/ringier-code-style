@@ -1,0 +1,212 @@
+name: Release
+
+# Manual release: builds the PHAR, commits it to the default branch, tags it and
+# publishes the GitHub release with the PHAR attached.
+#
+# The PHAR is committed rather than only attached to the release because
+# `composer.json` declares `builds/ringier-code-style` as the package binary —
+# Packagist serves it out of the tag, so the tag must contain a PHAR built at
+# that version. Building it here removes the `make build VERSION=…` step that
+# previously had to be run locally and committed by hand, which is how 0.6.89
+# shipped a stale binary.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release, e.g. 0.7.0. Leave blank to bump the patch of the latest tag.'
+        type: string
+        required: false
+      dry-run:
+        description: 'Build and verify only — do not commit, tag or publish.'
+        type: boolean
+        required: false
+        default: false
+
+# Two releases running at once would race on the branch tip and on the tag.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubicloud-standard-2-arm
+
+    name: Build and release the PHAR
+
+    permissions:
+      # The release commit is made with the app token below, not with GITHUB_TOKEN.
+      contents: read
+
+    steps:
+      - name: Refuse to release off a non-default branch
+        # A release commit and tag on a feature branch would publish a version
+        # Packagist can resolve but the default branch does not contain.
+        if: github.ref_name != github.event.repository.default_branch
+        run: |
+          echo "::error::Releases must be dispatched from ${{ github.event.repository.default_branch }}, got ${{ github.ref_name }}." >&2
+          exit 1
+
+      # Commits made with GITHUB_TOKEN are unsigned and never trigger further workflow
+      # runs. An app installation token is a separate identity, and commits created
+      # through GitHub's GraphQL API are signed with GitHub's own key, so the release
+      # commit lands Verified on a branch that requires signed commits.
+      - name: Mint app token
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ secrets.PR_SIGNING_BOT_CLIENT_ID }}
+          private-key: ${{ secrets.PR_SIGNING_BOT_PRIVATE_KEY }}
+          permission-contents: write
+
+      - name: Checkout the code
+        uses: actions/checkout@v7
+        with:
+          # Full history and tags so the previous version can be read for the patch bump.
+          fetch-depth: 0
+          # Nothing pushes from the runner; the commit is made over the API.
+          persist-credentials: false
+
+      - name: Resolve the version
+        id: version
+        env:
+          # Never interpolate a dispatch input straight into a shell script.
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+
+          if [ -n "$INPUT_VERSION" ]; then
+            version="$INPUT_VERSION"
+          else
+            # --sort=-v:refname orders numerically, so 0.6.90 beats 0.6.9.
+            previous=$(git tag --list '[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | head -1)
+            if [ -z "$previous" ]; then
+              echo "::error::No existing version tag to bump from. Pass an explicit version." >&2
+              exit 1
+            fi
+            version=$(echo "$previous" | awk -F. '{ printf "%d.%d.%d", $1, $2, $3 + 1 }')
+            echo "Latest tag is $previous, bumping to $version."
+          fi
+
+          if ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Version '$version' is not MAJOR.MINOR.PATCH." >&2
+            exit 1
+          fi
+
+          if git rev-parse -q --verify "refs/tags/$version" >/dev/null; then
+            echo "::error::Tag $version already exists." >&2
+            exit 1
+          fi
+
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "### Releasing \`$version\`" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          # Must match the `config.platform.php` pin in composer.json — composer
+          # resolves against that pin regardless of the runtime, so a lower
+          # runtime installs fine and then fatals at build time.
+          php-version: 8.3
+          extensions: dom, curl, libxml, mbstring, zip
+          ini-values: error_reporting=E_ALL
+          tools: composer:v2, phive
+          coverage: none
+
+      - name: Install the dependencies
+        # laravel-zero/framework is a dev dependency and is required to build, so no --no-dev.
+        # post-install-cmd runs phive, which populates the gitignored tools/ that box.json bundles.
+        run: composer install --prefer-dist --no-progress
+
+      - name: Build the PHAR
+        id: build
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: ./ringier-code-style app:build ringier-code-style --build-version="$VERSION"
+
+      - name: Verify the built PHAR
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+
+          # `app:build` reports success even when the binary it produced cannot run,
+          # and the version is baked in at build time — so check both here rather
+          # than discovering it after the tag is public.
+          reported=$(./builds/ringier-code-style --version --no-ansi | tr -d '\r')
+          echo "PHAR reports: $reported"
+
+          case "$reported" in
+            *"$VERSION") ;;
+            *) echo "::error::PHAR reports '$reported', expected it to end with '$VERSION'." >&2; exit 1 ;;
+          esac
+
+          # The bundled stub is read out of the PHAR via base_path(), so a PHAR built
+          # from a stale checkout emits a stale workflow — the failure 0.6.89 shipped.
+          # Dump into a scratch directory: config:dump writes relative to the cwd, and
+          # it exits 0 even when it refuses to write, so assert the result explicitly.
+          scratch=$(mktemp -d)
+          ( cd "$scratch" && "$GITHUB_WORKSPACE/builds/ringier-code-style" config:dump --all --workflow --no-ansi )
+
+          for dumped in .php-cs-fixer.php .styleci.yml .github/workflows/ringier-code-style.yml; do
+            if [ ! -s "$scratch/$dumped" ]; then
+              echo "::error::PHAR did not dump $dumped — its bundled files are missing or empty." >&2
+              exit 1
+            fi
+          done
+
+          if ! diff -q "$scratch/.github/workflows/ringier-code-style.yml" stubs/.github/workflows/ringier-code-style.yml; then
+            echo "::error::The workflow stub inside the PHAR differs from stubs/ in this checkout." >&2
+            exit 1
+          fi
+
+          rm -rf "$scratch"
+
+      - name: Commit the PHAR
+        id: commit
+        if: ${{ !inputs.dry-run }}
+        uses: planetscale/ghcommit-action@v0.2.22
+        with:
+          commit_message: ${{ steps.version.outputs.version }}
+          repo: ${{ github.repository }}
+          branch: ${{ github.ref_name }}
+          # Stage only the binary: `config:dump` above writes config files into the
+          # working tree, and those must not ride along in the release commit.
+          file_pattern: builds/ringier-code-style
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+
+      - name: Tag and publish the release
+        if: ${{ !inputs.dry-run }}
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+          # Tag the commit that actually contains the PHAR, not the runner's HEAD —
+          # the commit was created over the API and the runner never saw it.
+          COMMIT: ${{ steps.commit.outputs.commit-hash }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "$COMMIT" ]; then
+            echo "::error::The commit step produced no sha; refusing to tag an unknown commit." >&2
+            exit 1
+          fi
+
+          gh release create "$VERSION" \
+            --target "$COMMIT" \
+            --title "$VERSION" \
+            --generate-notes \
+            builds/ringier-code-style
+
+          echo "Released $VERSION at $COMMIT." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload the PHAR artifact
+        # The only output of a dry run, and a fallback copy when a later step failed.
+        # Gated on the build so a failed build cannot upload the stale committed PHAR
+        # under the new version's name.
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: ringier-code-style-${{ steps.version.outputs.version }}
+          path: builds/ringier-code-style
+          if-no-files-found: error

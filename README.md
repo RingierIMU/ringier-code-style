@@ -84,11 +84,28 @@ Pull requests opened from forks are skipped, because forks receive no secrets.
 make update-dependencies
 ```
 
-### Build fresh binary (required for each release)
+### Release
 
-Set the env `VERSION` to the next GitHub release version.
+Run the **Release** workflow from the Actions tab
+([`.github/workflows/release.yml`](.github/workflows/release.yml)). It builds the PHAR,
+commits it, tags it and publishes the release with the binary attached.
 
-For example, if the current version is 0.6.30, then call:
+- Leave **version** blank to bump the patch of the latest tag, or type an explicit
+  `MAJOR.MINOR.PATCH` to release something else.
+- Tick **dry-run** to build and verify without committing, tagging or publishing. The
+  PHAR is uploaded as a run artifact so it can be inspected.
+
+The workflow only runs from the default branch, refuses a version that is already tagged,
+and fails if the PHAR it built does not report the right version or does not carry the
+current `stubs/` content — the release commit is only made once those checks pass.
+
+It needs the organisation secrets `PR_SIGNING_BOT_CLIENT_ID` and
+`PR_SIGNING_BOT_PRIVATE_KEY` (the same GitHub App used by the code style workflow) so the
+release commit lands **Verified**.
+
+### Build a binary locally
+
+Not needed to release — the workflow above does it. To build one for testing:
 
 ```bash
 make build VERSION=0.6.31
