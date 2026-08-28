@@ -1,0 +1,97 @@
+name: Fix code style
+
+# Reusable workflow: fixes the code style of the PHP files a pull request touches and
+# commits the result back to the PR branch. Call it from a consuming repository —
+# see the "GitHub Actions" section of the README.
+
+on:
+  workflow_call:
+    inputs:
+      php-version:
+        description: PHP version used to run the fixer.
+        type: string
+        required: false
+        default: '8.3'
+      runs-on:
+        description: Runner label for the job.
+        type: string
+        required: false
+        default: ubuntu-latest
+    secrets:
+      app-client-id:
+        description: Client ID of a GitHub App installed on the calling repository with contents:write.
+        required: true
+      app-private-key:
+        description: Private key of that GitHub App.
+        required: true
+
+jobs:
+  fix-code-style:
+    runs-on: ${{ inputs.runs-on }}
+
+    # Fork PRs receive no secrets, so the app token cannot be minted — skip instead of failing.
+    if: github.event.pull_request.head.repo.full_name == github.repository
+
+    permissions:
+      # The style commit is made with the app token below, not with GITHUB_TOKEN.
+      contents: read
+
+    steps:
+      # Commits made with GITHUB_TOKEN never trigger further workflow runs, which would leave
+      # the PR's required checks unreported against the style commit. An app installation token
+      # is a separate identity, so the resulting `synchronize` event re-runs them.
+      - name: Mint app token
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ secrets.app-client-id }}
+          private-key: ${{ secrets.app-private-key }}
+          permission-contents: write
+
+      - uses: actions/checkout@v7
+        with:
+          # Check out the PR branch itself — the detached merge commit that pull_request events
+          # check out by default is not a branch we can commit to.
+          ref: ${{ github.head_ref }}
+          # Full history so changed files can be diffed against the base branch.
+          fetch-depth: 0
+          # Nothing pushes from the runner; the commit is made over the API.
+          persist-credentials: false
+
+      - name: Get changed php files
+        id: changed-files
+        run: |
+          files=$(git diff --name-only --diff-filter=ACMR "origin/${{ github.base_ref }}...HEAD" -- '*.php' | tr '\n' ' ')
+          echo "files=$files" >> "$GITHUB_OUTPUT"
+
+      - name: Setup PHP
+        if: steps.changed-files.outputs.files != ''
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ inputs.php-version }}
+          tools: composer:v2
+
+      - name: Install ringier-code-style
+        if: steps.changed-files.outputs.files != ''
+        run: composer global require ringierimu/ringier-code-style
+
+      - name: Fix code style
+        if: steps.changed-files.outputs.files != ''
+        run: |
+          ringier-code-style config:dump --all --quiet
+          ringier-code-style fix ${{ steps.changed-files.outputs.files }}
+
+      # Commits created through GitHub's GraphQL API are signed with GitHub's own key, so they
+      # land Verified on a branch that requires signed commits — no signing key to manage here.
+      - name: Commit fixes
+        if: steps.changed-files.outputs.files != ''
+        uses: planetscale/ghcommit-action@v0.2.22
+        with:
+          commit_message: Apply ringier-code-style changes
+          repo: ${{ github.repository }}
+          branch: ${{ github.head_ref }}
+          # Stage only the files handed to the fixer: `config:dump` writes config files into the
+          # working tree, and those must not ride along in the commit.
+          file_pattern: ${{ steps.changed-files.outputs.files }}
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
