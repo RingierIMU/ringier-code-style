@@ -3,57 +3,59 @@ name: ringier-code-style
 on:
   pull_request:
 
+concurrency:
+  # Cancel superseded runs on rapid pushes so two runs never race to push fixes.
+  group: ${{ github.workflow }}-${{ github.head_ref }}
+  cancel-in-progress: true
+
 jobs:
   ringier-code-style:
-    runs-on: ubuntu-latest
+    runs-on: ubicloud-standard-2-arm
+
+    # GITHUB_TOKEN cannot push to a fork's branch — skip PRs from forks instead of failing.
+    if: github.event.pull_request.head.repo.full_name == github.repository
 
     permissions:
       # Give the default GITHUB_TOKEN write permission to commit and push the changed files back to the repository.
       contents: write
 
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup QEMU
-        uses: docker/setup-qemu-action@v3
+      - uses: actions/checkout@v7
         with:
-          platforms: arm64
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: 8.2
-          tools: composer:v2
-
-      - name: Get Composer Cache Directory
-        id: composer-cache
-        run: |
-          echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
-      - uses: actions/cache@v4
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-ringier-code-style-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-composer-ringier-code-style-
-
-      - name: Install dependencies
-        run: composer global require ringierimu/ringier-code-style
-
-      - name: Setup config files
-        run: ringier-code-style config:dump --all --quiet
+          # Check out the PR branch itself — git-auto-commit-action errors on the
+          # detached merge commit that pull_request events check out by default.
+          ref: ${{ github.head_ref }}
+          # Required to push commits back to the repository.
+          persist-credentials: true
+          # Full history so changed files can be diffed against the base branch.
+          fetch-depth: 0
 
       - name: Get changed php files
         id: changed-files
-        uses: tj-actions/changed-files@v42
-        with:
-          files: |
-            **/*.php
-
-      - name: Run step if any php file(s) changed
-        if: steps.changed-files.outputs.any_changed == 'true'
         run: |
-          ringier-code-style fix ${{ steps.changed-files.outputs.all_changed_files }}
+          files=$(git diff --name-only --diff-filter=ACMR "origin/${{ github.base_ref }}...HEAD" -- '*.php' | tr '\n' ' ')
+          echo "files=$files" >> "$GITHUB_OUTPUT"
 
-      - uses: stefanzweifel/git-auto-commit-action@v5
+      - name: Setup PHP
+        if: steps.changed-files.outputs.files != ''
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.5
+          tools: composer:v2
+
+      - name: Install ringier-code-style
+        if: steps.changed-files.outputs.files != ''
+        run: composer global require ringierimu/ringier-code-style
+
+      - name: Fix code style
+        if: steps.changed-files.outputs.files != ''
+        run: |
+          ringier-code-style config:dump --all --quiet
+          ringier-code-style fix ${{ steps.changed-files.outputs.files }}
+          # Remove config files dumped above (untracked only) so they aren't committed into the PR.
+          git clean -f -- .php-cs-fixer.php .styleci.yml
+
+      - uses: stefanzweifel/git-auto-commit-action@v7
+        if: steps.changed-files.outputs.files != ''
         with:
           commit_message: Apply ringier-code-style changes
