@@ -11,36 +11,56 @@ on:
 
 jobs:
   publish:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     name: Release PHAR
 
+    permissions:
+      # Required to upload the built PHAR as a release asset.
+      contents: write
+
+    env:
+      # On `release` this is the tag; on `workflow_dispatch` github.ref_name is the
+      # branch, so fall back to the tag typed into the dispatch input.
+      TAG: ${{ github.event.inputs.tag || github.ref_name }}
+
     steps:
       - name: Checkout the code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref_name }}
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: 8.1
+          # Must match the `config.platform.php` pin in composer.json — composer
+          # resolves against that pin regardless of the runtime, so a lower
+          # runtime installs fine and then fatals at build time.
+          php-version: 8.3
           extensions: dom, curl, libxml, mbstring, zip
           ini-values: error_reporting=E_ALL
           tools: composer:v2, phive
           coverage: none
 
       - name: Install the dependencies
+        # laravel-zero/framework is a dev dependency and is required to build, so no --no-dev.
         run: composer install --prefer-dist --no-progress
 
+      - name: Install the bundled tools
+        # tools/ is gitignored but box.json bundles it into the PHAR — without this
+        # the compile step fails, and a PHAR built without it could not run `fix`.
+        run: phive install --trust-gpg-keys BBAB5DF0A0D6672989CF1869E82B2FB314E9906E,0FDE18AE1D09E19F60F6B1CBC00543248C87FB13
+
       - name: Create the PHAR file.
-        run: ./ringier-code-style app:build ringier-code-style --build-version=${{ github.ref_name }}
+        run: ./ringier-code-style app:build ringier-code-style --build-version="$TAG"
 
       - name: Upload the PHAR artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ringier-code-style.phar
           path: builds/ringier-code-style
 
       - name: Upload the PHAR to release
-        run: gh release upload ${{ github.ref_name }} builds/ringier-code-style
+        run: gh release upload "$TAG" builds/ringier-code-style --clobber
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

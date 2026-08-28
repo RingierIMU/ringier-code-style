@@ -40,7 +40,7 @@ jobs:
         if: steps.changed-files.outputs.files != ''
         uses: shivammathur/setup-php@v2
         with:
-          php-version: 8.5
+          php-version: 8.3
           tools: composer:v2
 
       - name: Install ringier-code-style
@@ -52,8 +52,6 @@ jobs:
         run: |
           ringier-code-style config:dump --all --quiet
           ringier-code-style fix ${{ steps.changed-files.outputs.files }}
-          # Remove config files dumped above (untracked only) so they aren't committed into the PR.
-          git clean -f -- .php-cs-fixer.php .styleci.yml
 
       - uses: stefanzweifel/git-auto-commit-action@v7
         if: steps.changed-files.outputs.files != ''
