@@ -108,11 +108,18 @@ class FixStdinCommand extends Command
 
     protected function runPHPCSFixer()
     {
-        if (file_exists('.php-cs-fixer.php')) {
-            $configFile = '.php-cs-fixer.php';
+        $tempConfig = null;
+
+        // Resolve against the real working directory. A relative path would be
+        // intercepted by the PHAR (box.json sets `intercept`) and always match
+        // the bundled default, which the php-cs-fixer child process then cannot
+        // read. A zero-byte file counts as absent: earlier versions left one behind.
+        $projectConfig = getcwd() . '/.php-cs-fixer.php';
+
+        if (is_file($projectConfig) && filesize($projectConfig) > 0) {
+            $configFile = $projectConfig;
         } else {
-            $configFile = tempnam(sys_get_temp_dir(), 'php-cs-fixer');
-            rename($configFile, '.php-cs-fixer.php');
+            $configFile = $tempConfig = tempnam(sys_get_temp_dir(), 'php-cs-fixer');
             file_put_contents($configFile, file_get_contents(base_path() . '/.php-cs-fixer.php'));
         }
 
@@ -137,5 +144,9 @@ class FixStdinCommand extends Command
         $process->run();
 
         @unlink($bin);
+
+        if ($tempConfig !== null) {
+            @unlink($tempConfig);
+        }
     }
 }
