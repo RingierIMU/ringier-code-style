@@ -13,7 +13,6 @@
 /.phive export-ignore
 /mago.toml export-ignore
 /.phpcs.xml export-ignore
-/.styleci.yml export-ignore
 /README.md export-ignore
 /app export-ignore
 /bootstrap export-ignore

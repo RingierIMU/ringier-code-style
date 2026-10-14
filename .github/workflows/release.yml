@@ -148,7 +148,7 @@ jobs:
           scratch=$(mktemp -d)
           ( cd "$scratch" && "$GITHUB_WORKSPACE/builds/ringier-code-style" config:dump --all --workflow --no-ansi )
 
-          for dumped in mago.toml .styleci.yml .github/workflows/ringier-code-style.yml; do
+          for dumped in mago.toml .github/workflows/ringier-code-style.yml; do
             if [ ! -s "$scratch/$dumped" ]; then
               echo "::error::PHAR did not dump $dumped — its bundled files are missing or empty." >&2
               exit 1

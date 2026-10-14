@@ -10,7 +10,6 @@
     "files": [
         "stubs/.github/workflows/ringier-code-style.yml",
         "mago.toml",
-        ".styleci.yml",
         "composer.json"
     ],
     "exclude-composer-files": false,

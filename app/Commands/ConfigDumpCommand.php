@@ -10,7 +10,7 @@ class ConfigDumpCommand extends Command
         {--all}
         {--mago : Write mago.toml}
         {--php-cs-fixer : Deprecated}
-        {--styleci}
+        {--styleci : Deprecated}
         {--workflow : Write the GitHub Actions workflow (not included in --all)}
         {--force : Overwrite any existing config files}
         {--pint : Deprecated}
@@ -27,13 +27,6 @@ class ConfigDumpCommand extends Command
         if ($this->option('mago') || $this->option('all')) {
             $this->exportFiles(
                 ['mago.toml' => 'mago.toml'],
-                (bool) $this->option('force'),
-            );
-        }
-
-        if ($this->option('styleci') || $this->option('all')) {
-            $this->exportFiles(
-                ['.styleci.yml' => '.styleci.yml'],
                 (bool) $this->option('force'),
             );
         }

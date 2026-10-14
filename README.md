@@ -16,7 +16,7 @@ composer require ringierimu/ringier-code-style --dev
 vendor/bin/ringier-code-style fix ...files...
 ```
 
-### Create config files for styleci and IDE compatibility
+### Create the mago config file for IDE compatibility
 
 ```bash
 vendor/bin/ringier-code-style config:dump --all
