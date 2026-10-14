@@ -109,8 +109,9 @@ commits it, tags it and publishes the release with the binary attached.
   PHAR is uploaded as a run artifact so it can be inspected.
 
 The workflow only runs from the default branch, refuses a version that is already tagged,
-and fails if the PHAR it built does not report the right version or does not carry the
-current `stubs/` content — the release commit is only made once those checks pass.
+and fails if the PHAR it built does not report the right version, does not carry the
+current `stubs/` content or cannot format a snippet — the release commit is only made once
+those checks pass.
 
 It needs the organisation secrets `PR_SIGNING_BOT_CLIENT_ID` and
 `PR_SIGNING_BOT_PRIVATE_KEY` (the same GitHub App used by the code style workflow) so the

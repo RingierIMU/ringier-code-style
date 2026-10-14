@@ -3,5 +3,4 @@
 /.vscode
 /.vagrant
 /tools/*
-.phpunit.result.cache
 .DS_Store

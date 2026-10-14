@@ -162,6 +162,15 @@ jobs:
 
           rm -rf "$scratch"
 
+          # Format a snippet from an empty directory, so the mago download and the bundled
+          # mago.toml run the way they do for a consumer without its own config. fix:stdin
+          # echoes its input back on failure, so an unformatted result means mago did not run.
+          formatted=$(cd "$(mktemp -d)" && printf '<?php\n$a=[1,2];\n' | "$GITHUB_WORKSPACE/builds/ringier-code-style" fix:stdin)
+          if [ "$formatted" != $'<?php\n\n$a = [1, 2];' ]; then
+            echo "::error::PHAR fix:stdin did not format the snippet, got: $formatted" >&2
+            exit 1
+          fi
+
       - name: Commit the PHAR
         id: commit
         if: ${{ !inputs.dry-run }}

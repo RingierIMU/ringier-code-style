@@ -18,6 +18,4 @@
 /box.json export-ignore
 /composer.lock export-ignore
 /config export-ignore
-/phpunit.xml.dist export-ignore
 /ringier-code-style export-ignore
-/tests export-ignore
