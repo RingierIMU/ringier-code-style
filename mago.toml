@@ -1,9 +1,9 @@
-php-version = "8.4"
+# Lowest PHP the consumer projects run. Formatter output is only version-gated on trailing commas (PHP 8.0 features) and new-without-parentheses (forced off below), so it stays valid on 8.3+.
+php-version = "8.3"
 
 [source]
-paths = ["app", "bootstrap", "config", "database", "lang", "public", "resources", "routes", "tests"]
-# Blade templates are formatted by prettier (see lint-staged in package.json).
-excludes = ["**/*.blade.php", "bootstrap/cache"]
+# Never format Blade templates, dependencies or generated files, even when passed as explicit paths.
+excludes = ["**/*.blade.php", "**/vendor/**", "**/node_modules/**", "storage", "bootstrap/cache"]
 
 # Tuned to stay as close as possible to the previous php-cs-fixer ruleset (.php-cs-fixer.php).
 [formatter]
