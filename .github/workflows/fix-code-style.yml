@@ -73,7 +73,8 @@ jobs:
 
       - name: Install ringier-code-style
         if: steps.changed-files.outputs.files != ''
-        run: composer global require ringierimu/ringier-code-style
+        # Consumers call this workflow from @main and pin ^0.6; 1.x formats with mago instead.
+        run: composer global require "ringierimu/ringier-code-style:^0.6"
 
       - name: Fix code style
         if: steps.changed-files.outputs.files != ''
