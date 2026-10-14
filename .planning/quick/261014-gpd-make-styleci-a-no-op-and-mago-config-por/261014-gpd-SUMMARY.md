@@ -1,7 +1,7 @@
 ---
 phase: quick-261014-gpd
 plan: 01
-status: incomplete
+status: complete
 reason: Task 3 dropped by user (to be replanned); Task 1 idempotency gate fails on 6 files in property-core-backend (mago formatter non-idempotent, [formatter] untouchable per D-03)
 commits: 1
 plan_head_before: 8582af3
@@ -51,4 +51,4 @@ Second `fix` run changes a handful of files (6 in property-core-backend, a few i
 
 - Task 3 was replaced at the user's request. StyleCI is removed entirely, not made a no-op (`4b9f60c`).
 - 1.0 breaking changes were added (`c7a17b4`): the deprecated `config:dump` flags and the ignored PHP CS Fixer options are removed, and `fix` now exits non-zero on failure.
-- Idempotency root cause: `preserve-breaking-argument-list` and `preserve-breaking-binary-expression` (mago bug, filed upstream as carthage-software/mago#2524). With both off, a second pass changes 0 files on all three repos. The fix (two-pass `fix`, or both options off) is still pending a user decision.
+- Idempotency root cause: `preserve-breaking-argument-list` and `preserve-breaking-binary-expression` (mago bug, filed upstream as carthage-software/mago#2524). With both off, a second pass changes 0 files on all three repos. The user chose the two-pass `fix` (`5e1c230`). One run now converges on all three repos.
