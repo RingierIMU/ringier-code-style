@@ -103,15 +103,15 @@ Run the **Release** workflow from the Actions tab
 ([`.github/workflows/release.yml`](.github/workflows/release.yml)). It builds the PHAR,
 commits it, tags it and publishes the release with the binary attached.
 
-- Leave **version** blank to bump the patch of the latest tag, or type an explicit
-  `MAJOR.MINOR.PATCH` to release something else.
+- Leave **version** blank to bump the patch of the latest 1.x tag, or type an explicit
+  `1.MINOR.PATCH` to release something else. The first 1.x release needs `1.0.0` typed in.
 - Tick **dry-run** to build and verify without committing, tagging or publishing. The
   PHAR is uploaded as a run artifact so it can be inspected.
 
-The workflow only runs from the default branch, refuses a version that is already tagged,
-and fails if the PHAR it built does not report the right version, does not carry the
-current `stubs/` content or cannot format a snippet — the release commit is only made once
-those checks pass.
+The workflow only runs from the `1.x` branch (0.x is released from `main`), refuses a version
+that is not 1.x or is already tagged, and fails if the PHAR it built does not report the right
+version, does not carry the current `stubs/` content or cannot format a snippet — the release
+commit is only made once those checks pass.
 
 It needs the organisation secrets `PR_SIGNING_BOT_CLIENT_ID` and
 `PR_SIGNING_BOT_PRIVATE_KEY` (the same GitHub App used by the code style workflow) so the
