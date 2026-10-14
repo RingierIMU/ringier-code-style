@@ -8,7 +8,8 @@ class ConfigDumpCommand extends Command
 {
     protected $signature = 'config:dump
         {--all}
-        {--php-cs-fixer}
+        {--mago : Write mago.toml}
+        {--php-cs-fixer : Deprecated}
         {--styleci}
         {--workflow : Write the GitHub Actions workflow (not included in --all)}
         {--force : Overwrite any existing config files}
@@ -23,9 +24,9 @@ class ConfigDumpCommand extends Command
      */
     public function handle()
     {
-        if ($this->option('php-cs-fixer') || $this->option('all')) {
+        if ($this->option('mago') || $this->option('all')) {
             $this->exportFiles(
-                ['.php-cs-fixer.php' => '.php-cs-fixer.php'],
+                ['mago.toml' => 'mago.toml'],
                 (bool) $this->option('force'),
             );
         }
