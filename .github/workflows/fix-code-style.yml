@@ -60,38 +60,44 @@ jobs:
 
       - name: Get changed php files
         id: changed-files
+        env:
+          BASE_REF: ${{ github.base_ref }}
         run: |
-          files=$(git diff --name-only --diff-filter=ACMR "origin/${{ github.base_ref }}...HEAD" -- '*.php' | tr '\n' ' ')
-          echo "files=$files" >> "$GITHUB_OUTPUT"
+          # NUL-separated and kept out of the script text, so a file name with spaces or shell
+          # characters stays one path and never runs as code.
+          git diff -z --name-only --diff-filter=ACMR "origin/$BASE_REF...HEAD" -- '*.php' > "$RUNNER_TEMP/changed-files"
+          if [ -s "$RUNNER_TEMP/changed-files" ]; then
+            echo "any=true" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Setup PHP
-        if: steps.changed-files.outputs.files != ''
+        if: steps.changed-files.outputs.any == 'true'
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ inputs.php-version }}
           tools: composer:v2
 
       - name: Install ringier-code-style
-        if: steps.changed-files.outputs.files != ''
+        if: steps.changed-files.outputs.any == 'true'
         run: composer global require ringierimu/ringier-code-style
 
       - name: Fix code style
-        if: steps.changed-files.outputs.files != ''
+        if: steps.changed-files.outputs.any == 'true'
         run: |
           ringier-code-style config:dump --all --quiet
-          ringier-code-style fix ${{ steps.changed-files.outputs.files }}
+          xargs -0 ringier-code-style fix < "$RUNNER_TEMP/changed-files"
 
       # Commits created through GitHub's GraphQL API are signed with GitHub's own key, so they
       # land Verified on a branch that requires signed commits — no signing key to manage here.
       - name: Commit fixes
-        if: steps.changed-files.outputs.files != ''
+        if: steps.changed-files.outputs.any == 'true'
         uses: planetscale/ghcommit-action@v0.2.22
         with:
           commit_message: Apply ringier-code-style changes
           repo: ${{ github.repository }}
           branch: ${{ github.head_ref }}
-          # Stage only the files handed to the fixer: `config:dump` writes config files into the
-          # working tree, and those must not ride along in the commit.
-          file_pattern: ${{ steps.changed-files.outputs.files }}
+          # A git pathspec, so it matches in every directory. The fixer only changes the files
+          # handed to it, and `config:dump` writes no PHP files, so its config never rides along.
+          file_pattern: '*.php'
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
