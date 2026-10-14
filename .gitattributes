@@ -11,6 +11,8 @@
 /.github export-ignore
 /.gitignore export-ignore
 /.phive export-ignore
+/.planning export-ignore
+/Makefile export-ignore
 /mago.toml export-ignore
 /README.md export-ignore
 /app export-ignore
@@ -19,3 +21,4 @@
 /composer.lock export-ignore
 /config export-ignore
 /ringier-code-style export-ignore
+/stubs export-ignore
