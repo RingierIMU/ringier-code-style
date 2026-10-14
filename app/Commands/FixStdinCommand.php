@@ -24,6 +24,11 @@ class FixStdinCommand extends Command
             $process = $this->runMago(['fmt', '--stdin-input'], $input);
 
             if ($process->isSuccessful()) {
+                // shortcut: mago 1.57 only converges on a second pass with the preserve-breaking-* options (carthage-software/mago#2524), drop the repeat once that ships.
+                $process = $this->runMago(['fmt', '--stdin-input'], $process->getOutput());
+            }
+
+            if ($process->isSuccessful()) {
                 echo $process->getOutput();
 
                 return;

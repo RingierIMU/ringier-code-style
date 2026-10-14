@@ -39,6 +39,8 @@ class FixCommand extends Command
     {
         $this->info('Running mago on ' . implode(', ', $this->argument('path')));
 
+        // shortcut: mago 1.57 only converges on a second pass with the preserve-breaking-* options (carthage-software/mago#2524), drop the repeat once that ships.
+        $this->runMago(['fmt', ...$this->argument('path')]);
         $process = $this->runMago(['fmt', ...$this->argument('path')]);
 
         if (!$process->isSuccessful()) {
