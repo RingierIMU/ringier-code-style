@@ -3,13 +3,20 @@
     "directories": [
         "app",
         "bootstrap",
-        "config",
-        "vendor"
+        "config"
     ],
     "files": [
         "stubs/.github/workflows/ringier-code-style.yml",
         "mago.toml",
         "composer.json"
+    ],
+    "finder": [
+        {
+            "in": "vendor",
+            "exclude": [
+                "carthage-software/mago/composer/bin"
+            ]
+        }
     ],
     "exclude-composer-files": false,
     "exclude-dev-files": false,
