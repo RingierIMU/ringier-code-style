@@ -2,6 +2,7 @@
 
 namespace App\Commands;
 
+use App\Commands\Concerns\RunsMago;
 use Illuminate\Support\Str;
 use LaravelZero\Framework\Commands\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -10,6 +11,8 @@ use Symfony\Component\Process\Process;
 
 class FixCommand extends Command
 {
+    use RunsMago;
+
     protected $name = 'fix';
 
     protected $description = 'Fix code styling for the given path.';
@@ -108,62 +111,23 @@ class FixCommand extends Command
                 }
             }
 
-            $this->runPHPCSFixer();
+            $this->runMagoFormat();
         } else {
             $this->runComposerNormalize();
         }
     }
 
-    protected function runPHPCSFixer()
+    protected function runMagoFormat()
     {
-        $tempConfig = null;
+        $this->info('Running mago on ' . implode(', ', $this->argument('path')));
 
-        // Resolve against the real working directory. A relative path would be
-        // intercepted by the PHAR (box.json sets `intercept`) and always match
-        // the bundled default, which the php-cs-fixer child process then cannot
-        // read. A zero-byte file counts as absent: earlier versions left one behind.
-        $projectConfig = getcwd() . '/.php-cs-fixer.php';
-
-        if (is_file($projectConfig) && filesize($projectConfig) > 0) {
-            $configFile = $projectConfig;
-        } else {
-            $configFile = $tempConfig = tempnam(sys_get_temp_dir(), 'php-cs-fixer');
-            file_put_contents($configFile, file_get_contents(base_path() . '/.php-cs-fixer.php'));
-        }
-
-        $bin = tempnam(sys_get_temp_dir(), 'php-cs-fixer');
-        file_put_contents($bin, file_get_contents(base_path() . '/tools/php-cs-fixer'));
-        chmod($bin, 0o755);
-
-        $this->info('Running php-cs-fixer on ' . implode(', ', $this->argument('path')));
-
-        $process = new Process(
-            [
-                $bin,
-                'fix',
-                '--config=' . $configFile,
-                '--allow-risky=yes',
-                '--using-cache=no',
-                ...$this->argument('path'),
-            ],
-            null,
-            null,
-            null,
-            60 * 10,
-        );
-        $process->run();
+        $process = $this->runMago(['fmt', ...$this->argument('path')]);
 
         if (!$process->isSuccessful()) {
             $this->error($process->getErrorOutput());
         }
 
         echo $process->getOutput();
-
-        @unlink($bin);
-
-        if ($tempConfig !== null) {
-            @unlink($tempConfig);
-        }
     }
 
     protected function runComposerNormalize(string $path = null)

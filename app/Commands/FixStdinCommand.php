@@ -2,17 +2,17 @@
 
 namespace App\Commands;
 
+use App\Commands\Concerns\RunsMago;
 use LaravelZero\Framework\Commands\Command;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Process\Process;
 
 class FixStdinCommand extends Command
 {
+    use RunsMago;
+
     protected $name = 'fix:stdin';
 
     protected $description = 'Fix code styling for the given STDIN.';
-
-    protected string $stdinTmp;
 
     protected function configure()
     {
@@ -96,57 +96,24 @@ class FixStdinCommand extends Command
      */
     public function handle()
     {
-        $this->stdinTmp = tempnam(sys_get_temp_dir(), 'stdin');
-        file_put_contents($this->stdinTmp, (string) file_get_contents('php://stdin'));
+        $input = (string) file_get_contents('php://stdin');
 
-        $this->runPHPCSFixer();
+        try {
+            $process = $this->runMago(['fmt', '--stdin-input'], $input);
 
-        echo file_get_contents($this->stdinTmp);
+            if ($process->isSuccessful()) {
+                echo $process->getOutput();
 
-        @unlink($this->stdinTmp);
-    }
+                return;
+            }
 
-    protected function runPHPCSFixer()
-    {
-        $tempConfig = null;
-
-        // Resolve against the real working directory. A relative path would be
-        // intercepted by the PHAR (box.json sets `intercept`) and always match
-        // the bundled default, which the php-cs-fixer child process then cannot
-        // read. A zero-byte file counts as absent: earlier versions left one behind.
-        $projectConfig = getcwd() . '/.php-cs-fixer.php';
-
-        if (is_file($projectConfig) && filesize($projectConfig) > 0) {
-            $configFile = $projectConfig;
-        } else {
-            $configFile = $tempConfig = tempnam(sys_get_temp_dir(), 'php-cs-fixer');
-            file_put_contents($configFile, file_get_contents(base_path() . '/.php-cs-fixer.php'));
+            $error = $process->getErrorOutput();
+        } catch (\RuntimeException $e) {
+            $error = $e->getMessage();
         }
 
-        $bin = tempnam(sys_get_temp_dir(), 'php-cs-fixer');
-        file_put_contents($bin, file_get_contents(base_path() . '/tools/php-cs-fixer'));
-        chmod($bin, 0o755);
-
-        $process = new Process(
-            [
-                $bin,
-                'fix',
-                '--config=' . $configFile,
-                '--allow-risky=yes',
-                '--using-cache=no',
-                $this->stdinTmp,
-            ],
-            null,
-            null,
-            null,
-            60 * 10,
-        );
-        $process->run();
-
-        @unlink($bin);
-
-        if ($tempConfig !== null) {
-            @unlink($tempConfig);
-        }
+        // IDE integrations replace the buffer with our stdout, so on failure echo the input back untouched.
+        fwrite(STDERR, $error);
+        echo $input;
     }
 }
