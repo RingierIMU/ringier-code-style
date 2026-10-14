@@ -14,7 +14,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version to release, e.g. 0.7.0. Leave blank to bump the patch of the latest tag.'
+        description: 'Version to release, e.g. 0.7.0. Leave blank to bump the patch of the latest 0.x tag.'
         type: string
         required: false
       dry-run:
@@ -78,8 +78,9 @@ jobs:
           if [ -n "$INPUT_VERSION" ]; then
             version="$INPUT_VERSION"
           else
-            # --sort=-v:refname orders numerically, so 0.6.90 beats 0.6.9.
-            previous=$(git tag --list '[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | head -1)
+            # --sort=-v:refname orders numerically, so 0.6.90 beats 0.6.9. Only 0.x tags:
+            # 1.x is released from the 1.x branch.
+            previous=$(git tag --list '0.[0-9]*.[0-9]*' --sort=-v:refname | head -1)
             if [ -z "$previous" ]; then
               echo "::error::No existing version tag to bump from. Pass an explicit version." >&2
               exit 1
@@ -88,8 +89,8 @@ jobs:
             echo "Latest tag is $previous, bumping to $version."
           fi
 
-          if ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "::error::Version '$version' is not MAJOR.MINOR.PATCH." >&2
+          if ! [[ "$version" =~ ^0\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Version '$version' is not 0.MINOR.PATCH. 1.x is released from the 1.x branch." >&2
             exit 1
           fi
 

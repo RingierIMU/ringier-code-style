@@ -90,8 +90,8 @@ Run the **Release** workflow from the Actions tab
 ([`.github/workflows/release.yml`](.github/workflows/release.yml)). It builds the PHAR,
 commits it, tags it and publishes the release with the binary attached.
 
-- Leave **version** blank to bump the patch of the latest tag, or type an explicit
-  `MAJOR.MINOR.PATCH` to release something else.
+- Leave **version** blank to bump the patch of the latest 0.x tag, or type an explicit
+  `0.MINOR.PATCH` to release something else. 1.x is released from the `1.x` branch.
 - Tick **dry-run** to build and verify without committing, tagging or publishing. The
   PHAR is uploaded as a run artifact so it can be inspected.
 
