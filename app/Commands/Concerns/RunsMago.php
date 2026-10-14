@@ -16,7 +16,7 @@ trait RunsMago
     /**
      * @param list<string> $arguments
      */
-    protected function runMago(array $arguments, ?string $input = null): Process
+    protected function runMago(array $arguments, string|null $input = null): Process
     {
         // shortcut: relies on mago's internal Composer-wrapper functions (Mago\Internal), re-check them when bumping carthage-software/mago.
         $version = get_version();
