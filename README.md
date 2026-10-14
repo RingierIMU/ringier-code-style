@@ -22,6 +22,19 @@ vendor/bin/ringier-code-style fix ...files...
 vendor/bin/ringier-code-style config:dump --all
 ```
 
+### Upgrading from 0.x
+
+1.0 formats with [mago](https://mago.carthage.software) instead of PHP CS Fixer.
+
+- `config:dump --php-cs-fixer`, `--styleci`, `--pint` and `--phpcs` are removed, and the command
+  errors if they are passed. Replace them in your composer scripts with `config:dump --mago`, or
+  drop the call: `fix` falls back to the bundled `mago.toml`.
+- StyleCI is no longer supported. Disable it for the repository and delete `.styleci.yml`;
+  otherwise it reverts mago's formatting. Delete `.php-cs-fixer.php` too.
+- `fix` and `fix:stdin` no longer accept PHP CS Fixer's options (`--config`, `--dry-run`, …),
+  so an IDE's PHP CS Fixer integration pointed at this binary stops working.
+- `fix` now exits non-zero when a file fails to parse.
+
 ### Fix code style automatically on every pull request
 
 `fix-code-style.yml` is a reusable workflow. It fixes the PHP files a pull request touches and

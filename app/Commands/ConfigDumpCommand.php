@@ -9,12 +9,8 @@ class ConfigDumpCommand extends Command
     protected $signature = 'config:dump
         {--all}
         {--mago : Write mago.toml}
-        {--php-cs-fixer : Deprecated}
-        {--styleci : Deprecated}
         {--workflow : Write the GitHub Actions workflow (not included in --all)}
         {--force : Overwrite any existing config files}
-        {--pint : Deprecated}
-        {--phpcs : Deprecated}
     ';
 
     protected $description = 'Create the initial config files.';

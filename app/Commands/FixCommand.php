@@ -5,119 +5,37 @@ namespace App\Commands;
 use App\Commands\Concerns\RunsMago;
 use Illuminate\Support\Str;
 use LaravelZero\Framework\Commands\Command;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Process\Process;
 
 class FixCommand extends Command
 {
     use RunsMago;
 
-    protected $name = 'fix';
+    protected $signature = 'fix {path?* : The paths to fix}';
 
     protected $description = 'Fix code styling for the given path.';
-
-    protected function configure()
-    {
-        parent::configure();
-
-        $this
-            ->setDefinition(
-                [
-                    new InputArgument(
-                        'path',
-                        InputArgument::IS_ARRAY,
-                        'The path to fix',
-                    ),
-                    new InputOption(
-                        'path-mode',
-                        null,
-                        InputOption::VALUE_OPTIONAL,
-                        'IGNORED - included for PHPStorm + PHP CS Fixer integration',
-                    ),
-                    new InputOption(
-                        'config',
-                        null,
-                        InputOption::VALUE_OPTIONAL,
-                        'IGNORED - included for PHPStorm + PHP CS Fixer integration',
-                    ),
-                    new InputOption(
-                        'dry-run',
-                        null,
-                        InputOption::VALUE_NONE,
-                        'IGNORED - included for PHPStorm + PHP CS Fixer integration',
-                    ),
-                    new InputOption(
-                        'allow-risky',
-                        null,
-                        InputOption::VALUE_OPTIONAL,
-                        'IGNORED - included for PHPStorm + PHP CS Fixer integration',
-                    ),
-                    new InputOption(
-                        'diff',
-                        null,
-                        InputOption::VALUE_NONE,
-                        'IGNORED - included for PHPStorm + PHP CS Fixer integration',
-                    ),
-                    new InputOption(
-                        'format',
-                        null,
-                        InputOption::VALUE_OPTIONAL,
-                        'IGNORED - included for PHPStorm + PHP CS Fixer integration',
-                    ),
-                    new InputOption(
-                        'rules',
-                        null,
-                        InputOption::VALUE_OPTIONAL,
-                        'IGNORED - included for PHPStorm + PHP CS Fixer integration',
-                    ),
-                    new InputOption(
-                        'stop-on-violation',
-                        null,
-                        InputOption::VALUE_NONE,
-                        'IGNORED - included for PHPStorm + PHP CS Fixer integration',
-                    ),
-                    new InputOption(
-                        'show-progress',
-                        null,
-                        InputOption::VALUE_OPTIONAL,
-                        'IGNORED - included for PHPStorm + PHP CS Fixer integration',
-                    ),
-                    new InputOption(
-                        'using-cache',
-                        null,
-                        InputOption::VALUE_OPTIONAL,
-                        'IGNORED - included for PHPStorm + PHP CS Fixer integration',
-                    ),
-                    new InputOption(
-                        'config',
-                        null,
-                        InputOption::VALUE_OPTIONAL,
-                        'IGNORED - included for PHPStorm + PHP CS Fixer integration',
-                    ),
-                ],
-            );
-    }
 
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): int
     {
-        if ($this->argument('path')) {
-            foreach ($this->argument('path') as $path) {
-                if (Str::is(['*/composer.json', 'composer.json'], $path)) {
-                    $this->runComposerNormalize($path);
-                }
-            }
-
-            $this->runMagoFormat();
-        } else {
-            $this->runComposerNormalize();
+        if (!$this->argument('path')) {
+            return $this->runComposerNormalize();
         }
+
+        $exitCode = self::SUCCESS;
+
+        foreach ($this->argument('path') as $path) {
+            if (Str::is(['*/composer.json', 'composer.json'], $path)) {
+                $exitCode = $this->runComposerNormalize($path) ?: $exitCode;
+            }
+        }
+
+        return $this->runMagoFormat() ?: $exitCode;
     }
 
-    protected function runMagoFormat()
+    protected function runMagoFormat(): int
     {
         $this->info('Running mago on ' . implode(', ', $this->argument('path')));
 
@@ -128,9 +46,11 @@ class FixCommand extends Command
         }
 
         echo $process->getOutput();
+
+        return $process->getExitCode();
     }
 
-    protected function runComposerNormalize(string $path = null)
+    protected function runComposerNormalize(string|null $path = null): int
     {
         $bin = tempnam(sys_get_temp_dir(), 'composer-normalize');
         file_put_contents($bin, file_get_contents(base_path() . '/tools/composer-normalize'));
@@ -158,5 +78,7 @@ class FixCommand extends Command
         echo $process->getOutput();
 
         @unlink($bin);
+
+        return $process->getExitCode();
     }
 }

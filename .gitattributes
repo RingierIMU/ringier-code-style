@@ -12,7 +12,6 @@
 /.gitignore export-ignore
 /.phive export-ignore
 /mago.toml export-ignore
-/.phpcs.xml export-ignore
 /README.md export-ignore
 /app export-ignore
 /bootstrap export-ignore
@@ -20,8 +19,5 @@
 /composer.lock export-ignore
 /config export-ignore
 /phpunit.xml.dist export-ignore
-/phpunit.xml.dist export-ignore
-/pint.json export-ignore
 /ringier-code-style export-ignore
-/storage export-ignore
 /tests export-ignore
