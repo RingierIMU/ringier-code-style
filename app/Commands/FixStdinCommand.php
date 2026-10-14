@@ -35,7 +35,7 @@ class FixStdinCommand extends Command
             }
 
             $error = $process->getErrorOutput();
-        } catch (\RuntimeException $e) {
+        } catch (\Throwable $e) {
             $error = $e->getMessage();
         }
 
