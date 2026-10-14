@@ -110,12 +110,11 @@ jobs:
           php-version: 8.3
           extensions: dom, curl, libxml, mbstring, zip
           ini-values: error_reporting=E_ALL
-          tools: composer:v2, phive
+          tools: composer:v2
           coverage: none
 
       - name: Install the dependencies
         # laravel-zero/framework is a dev dependency and is required to build, so no --no-dev.
-        # post-install-cmd runs phive, which populates the gitignored tools/ that box.json bundles.
         run: composer install --prefer-dist --no-progress
 
       - name: Build the PHAR

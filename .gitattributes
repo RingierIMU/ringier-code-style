@@ -10,7 +10,6 @@
 /.gitattributes export-ignore
 /.github export-ignore
 /.gitignore export-ignore
-/.phive export-ignore
 /.planning export-ignore
 /Makefile export-ignore
 /mago.toml export-ignore
