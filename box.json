@@ -14,7 +14,12 @@
         {
             "in": "vendor",
             "exclude": [
-                "carthage-software/mago/composer/bin"
+                "carthage-software/mago/composer/bin",
+                "laravel-zero/framework/bin",
+                "jolicode/jolinotif/bin",
+                "jolicode/jolinotif/doc",
+                "jolicode/jolinotif/tools",
+                "jolicode/php-os-helper/tools"
             ]
         }
     ],
