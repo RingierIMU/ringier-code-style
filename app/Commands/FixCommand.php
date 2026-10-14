@@ -13,6 +13,7 @@ use Illuminate\Support\Str;
 use LaravelZero\Framework\Commands\Command;
 use Localheinz\Diff\Differ;
 use Localheinz\Diff\Output\StrictUnifiedDiffOutputBuilder;
+use Phar;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Filesystem\Path;
 
@@ -70,11 +71,14 @@ class FixCommand extends Command
         // box.json `intercept` resolves relative reads from PHAR code to the composer.json bundled in the PHAR; COMPOSER also steers the nested `update --lock`.
         Platform::putEnv('COMPOSER', $file);
 
+        // json-schema resolves a bare absolute path to ':///...'; phar:// paths already carry a scheme.
+        $schema = base_path('vendor/ergebnis/composer-normalize/resource/schema.json');
+
         $application = new Application();
         $application->setAutoExit(false);
         $application->addCommand(new NormalizeCommand(
             new Factory(),
-            new ComposerJsonNormalizer(base_path('vendor/ergebnis/composer-normalize/resource/schema.json')),
+            new ComposerJsonNormalizer(Phar::running() === '' ? 'file://' . $schema : $schema),
             new Printer(),
             new Differ(new StrictUnifiedDiffOutputBuilder(['fromFile' => 'original', 'toFile' => 'normalized'])),
         ));
