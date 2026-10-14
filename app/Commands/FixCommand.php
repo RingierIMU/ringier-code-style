@@ -3,9 +3,18 @@
 namespace App\Commands;
 
 use App\Commands\Concerns\RunsMago;
+use Composer\Console\Application;
+use Composer\Factory;
+use Composer\Util\Platform;
+use Ergebnis\Composer\Normalize\Command\NormalizeCommand;
+use Ergebnis\Json\Normalizer\Vendor\Composer\ComposerJsonNormalizer;
+use Ergebnis\Json\Printer\Printer;
 use Illuminate\Support\Str;
 use LaravelZero\Framework\Commands\Command;
-use Symfony\Component\Process\Process;
+use Localheinz\Diff\Differ;
+use Localheinz\Diff\Output\StrictUnifiedDiffOutputBuilder;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Filesystem\Path;
 
 class FixCommand extends Command
 {
@@ -54,33 +63,22 @@ class FixCommand extends Command
 
     protected function runComposerNormalize(string|null $path = null): int
     {
-        $bin = tempnam(sys_get_temp_dir(), 'composer-normalize');
-        file_put_contents($bin, file_get_contents(base_path() . '/tools/composer-normalize'));
-        chmod($bin, 0o755);
-
         $this->info('Running composer normalize');
-        $process = new Process(
-            array_merge(
-                [
-                    $bin,
-                ],
-                $path ? [$path] : [],
-            ),
-            null,
-            null,
-            null,
-            60 * 10,
-        );
-        $process->run();
 
-        if (!$process->isSuccessful()) {
-            $this->error($process->getErrorOutput());
-        }
+        $file = Path::makeAbsolute($path ?? Factory::getComposerFile(), getcwd());
 
-        echo $process->getOutput();
+        // box.json `intercept` resolves relative reads from PHAR code to the composer.json bundled in the PHAR; COMPOSER also steers the nested `update --lock`.
+        Platform::putEnv('COMPOSER', $file);
 
-        @unlink($bin);
+        $application = new Application();
+        $application->setAutoExit(false);
+        $application->addCommand(new NormalizeCommand(
+            new Factory(),
+            new ComposerJsonNormalizer(base_path('vendor/ergebnis/composer-normalize/resource/schema.json')),
+            new Printer(),
+            new Differ(new StrictUnifiedDiffOutputBuilder(['fromFile' => 'original', 'toFile' => 'normalized'])),
+        ));
 
-        return $process->getExitCode();
+        return $application->run(new ArrayInput(['command' => 'normalize']), $this->output->getOutput());
     }
 }

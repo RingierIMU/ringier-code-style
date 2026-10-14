@@ -15,6 +15,8 @@
     },
     "require-dev": {
         "carthage-software/mago": "^1.57",
+        "composer/composer": "^2.10",
+        "ergebnis/composer-normalize": "^2.54",
         "laravel-zero/framework": "^13.0"
     },
     "minimum-stability": "dev",
@@ -29,6 +31,7 @@
     ],
     "config": {
         "allow-plugins": {
+            "ergebnis/composer-normalize": true,
             "pestphp/pest-plugin": true
         },
         "optimize-autoloader": true,
@@ -39,17 +42,8 @@
         "sort-packages": true
     },
     "scripts": {
-        "post-install-cmd": [
-            "@phive-install"
-        ],
-        "post-update-cmd": [
-            "@phive-install"
-        ],
         "fix-code-style": [
             "./ringier-code-style fix app config bootstrap"
-        ],
-        "phive-install": [
-            "phive install --copy --trust-gpg-keys 0xC00543248C87FB13,0x31C7E470E2138192,0xE82B2FB314E9906E,0x5E6DDE998AB73B8E --force-accept-unsigned"
         ]
     }
 }
