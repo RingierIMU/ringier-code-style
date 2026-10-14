@@ -1,0 +1,44 @@
+php-version = "8.4"
+
+[source]
+paths = ["app", "bootstrap", "config", "database", "lang", "public", "resources", "routes", "tests"]
+# Blade templates are formatted by prettier (see lint-staged in package.json).
+excludes = ["**/*.blade.php", "bootstrap/cache"]
+
+# Tuned to stay as close as possible to the previous php-cs-fixer ruleset (.php-cs-fixer.php).
+[formatter]
+# php-cs-fixer never wrapped long lines; 200 keeps churn near zero while still wrapping extreme lines.
+print-width = 200
+
+# Keep line breaks the author chose instead of re-flowing to fit print-width.
+preserve-breaking-member-access-chain = true
+preserve-breaking-argument-list = true
+preserve-breaking-parameter-list = true
+preserve-breaking-attribute-list = true
+preserve-breaking-conditional-expression = true
+preserve-breaking-condition-expression = true
+preserve-breaking-binary-expression = true
+preserve-redundant-logical-binary-expression-parentheses = true
+break-promoted-properties-list = false
+
+# fn ($x) => ...
+space-before-arrow-function-parameter-list-parenthesis = true
+# (new Foo())->bar() rather than the PHP 8.4 new Foo()->bar()
+parentheses-around-new-in-member-access = true
+# nullable_type_declaration: union + ordered_types: null_adjustment always_last
+null-type-hint = "null_pipe_last"
+# binary_operator_spaces: no => alignment
+array-table-style-alignment = false
+
+# single_line_empty_body: false
+inline-empty-constructor-braces = false
+inline-empty-method-braces = false
+inline-empty-classlike-braces = false
+inline-empty-function-braces = false
+inline-empty-closure-braces = false
+inline-empty-anonymous-class-braces = false
+
+# blank_line_before_statement: return + class_attributes_separation: const/property one
+empty-line-before-return = true
+empty-line-after-class-like-constant = true
+empty-line-after-property = true
