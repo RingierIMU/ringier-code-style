@@ -34,6 +34,8 @@ vendor/bin/ringier-code-style config:dump --all
 - `fix` and `fix:stdin` no longer accept PHP CS Fixer's options (`--config`, `--dry-run`, …),
   so an IDE's PHP CS Fixer integration pointed at this binary stops working.
 - `fix` now exits non-zero when a file fails to parse.
+- Re-dump the CI workflow with `config:dump --workflow --force`. 1.x calls
+  `fix-code-style.yml@1.x`; the old `@main` caller keeps installing 0.x.
 
 ### Fix code style automatically on every pull request
 
@@ -62,7 +64,7 @@ jobs:
   ringier-code-style:
     # The job lives in the fixer's own repo, so a fix to it reaches every consuming repo.
     # Pin to a release tag: https://github.com/RingierIMU/ringier-code-style/releases
-    uses: RingierIMU/ringier-code-style/.github/workflows/fix-code-style.yml@main
+    uses: RingierIMU/ringier-code-style/.github/workflows/fix-code-style.yml@1.x
     with:
       runs-on: ubicloud-standard-2-arm
     secrets:

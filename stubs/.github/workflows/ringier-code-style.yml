@@ -12,7 +12,7 @@ jobs:
   ringier-code-style:
     # The job lives in the fixer's own repo, so a fix to it reaches every consuming repo.
     # Pin to a release tag: https://github.com/RingierIMU/ringier-code-style/releases
-    uses: RingierIMU/ringier-code-style/.github/workflows/fix-code-style.yml@main
+    uses: RingierIMU/ringier-code-style/.github/workflows/fix-code-style.yml@1.x
     with:
       runs-on: ubicloud-standard-2-arm
     secrets:

@@ -79,7 +79,8 @@ jobs:
 
       - name: Install ringier-code-style
         if: steps.changed-files.outputs.any == 'true'
-        run: composer global require ringierimu/ringier-code-style
+        # Consumers on 1.x call this workflow from @1.x; @main installs ^0.6.
+        run: composer global require "ringierimu/ringier-code-style:^1.0"
 
       - name: Fix code style
         if: steps.changed-files.outputs.any == 'true'
