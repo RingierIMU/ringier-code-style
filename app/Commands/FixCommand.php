@@ -7,12 +7,11 @@ use Composer\Console\Application;
 use Composer\Factory;
 use Composer\Util\Platform;
 use Ergebnis\Composer\Normalize\Command\NormalizeCommand;
+use Ergebnis\Differ\MyersDiffer;
 use Ergebnis\Json\Normalizer\Vendor\Composer\ComposerJsonNormalizer;
 use Ergebnis\Json\Printer\Printer;
 use Illuminate\Support\Str;
 use LaravelZero\Framework\Commands\Command;
-use Localheinz\Diff\Differ;
-use Localheinz\Diff\Output\StrictUnifiedDiffOutputBuilder;
 use Phar;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Filesystem\Path;
@@ -80,7 +79,7 @@ class FixCommand extends Command
             new Factory(),
             new ComposerJsonNormalizer(Phar::running() === '' ? 'file://' . $schema : $schema),
             new Printer(),
-            new Differ(new StrictUnifiedDiffOutputBuilder(['fromFile' => 'original', 'toFile' => 'normalized'])),
+            new MyersDiffer(),
         ));
 
         return $application->run(new ArrayInput(['command' => 'normalize']), $this->output->getOutput());

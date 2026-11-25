@@ -3,7 +3,6 @@
     "description": "Ringier SA PHP Code Style",
     "license": "MIT",
     "type": "project",
-    "keywords": [],
     "authors": [
         {
             "name": "Matthew Nessworthy",
